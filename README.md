@@ -1,5 +1,84 @@
 # flow
 Configurable stream networks
+### Usage
+```js
+// create a flow (core) instance
+var flow = Flow({
+
+    // this method must return a CommonJs exports object.
+    module: function (name, callback) {
+        // .. get the module
+        var module = require(name);
+        callback(null, module);
+    },
+
+    // return a flow instance composition
+    composition: function (name, callback) {
+        // .. get the config
+        callback(null, config);
+    }
+
+    // connect to a external flow event stream (multiplexer)
+    // this method must return a writable stream (duplex, transform, ect.)
+    request: function (coreInst, options) {
+        // this method is called, when the "net" option is set.
+        switch (option.net) {
+            case "http":
+                // .. create http request stream
+            case "ws":
+                // .. create ws multiplexer
+        }
+        
+        return stream;
+    }
+});
+```
+###Module package extension
+Extend the `npm` `package.json` with a `composition` object, to define a default config for instances of the module:
+```json
+{
+    "composition": {
+        "config": {},
+        "flow": {},
+        "load": ["instance"],
+        "styles": ["styles.css"],
+        "markup": ["markup.html"]
+    }
+}
+```
+###Module instance config
+##### Composition:
+A composition config, configures an instance of a module.
+```json
+{
+    "roles": {"*": true},
+    "name": "instance",
+    "module": "module",
+    "config": {},
+    "flow": {},
+    "load": ["instance"],
+    "styles": ["/path/file.css"],
+    "markup": ["/path/file.html"]
+}
+```
+##### Composition with custom module:
+```json
+{
+    "roles": {"*": true},
+    "name": "instance",
+    "module": {
+        "main": "server_main.js",
+        "browser": "./client_main.js"
+    },
+    "config": {},
+    "flow": {},
+    "load": ["instance"],
+    "styles": ["/path/file.css"],
+    "markup": ["/path/file.html"]
+}
+```
+The `module.browser` field represents the [browserify "browser" option](https://github.com/substack/node-browserify#browser-field).
+
 #####Configuration overview:
 ```js
 {
