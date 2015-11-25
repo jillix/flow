@@ -1,8 +1,13 @@
 # flow
 Configurable stream networks
 
+### Installation
+With NPM: `npm install jillix/flow`.
+
 ### Usage (client and server)
 ```js
+var Flow = require('flow');
+
 // create a flow (core) instance
 var flow = Flow({
 
@@ -37,7 +42,42 @@ var flow = Flow({
 flow.load('*')
 ```
 
-###Module package extension
+### Handlers
+Here's and example how to write flow handlers in your module code:
+```js
+// stream handler
+exports.method = function (stream, options) {
+    // the first argument "stream" is a a duplex stream.
+    
+    // pipe to a writable
+    stream.pipe(otherWritableStream);
+    
+    // read from a readable
+    otherReadableStream.pipe(stream);
+    
+    // use another duplex stream
+    stream.pipe(transformStream).pipe(stream);
+    
+    // return the stream, so it can be linked
+    return stream
+}
+
+// data handler
+function myMethod (options, data, next) {
+    
+    // Push data to response (readable), without calling the next data handler.
+    // Note, that you have to call next again, to signal that the handler is done.
+    next(data, true);
+    
+    // Pass transformed data to the next data handler.
+    next(null, data);
+    
+    // Emit en error
+    next(new Error('Something bad happend.'));
+}
+```
+
+### Module package extension
 Extend the `npm` `package.json` with a `composition` object, to define a default config for instances of the module:
 ```json
 {
@@ -132,42 +172,6 @@ The `module.browser` field represents the [browserify "browser" option](https://
 }
 ```
 
-### Handlers
-Every module instance has the event stream (flow) object as prototype.
-Heres and example how to use a flow stream in your module code:
-```js
-// stream handler
-exports.method = function (stream, options) {
-    // the first argument "stream" is a a duplex stream.
-    
-    // pipe to a writable
-    stream.pipe(otherWritableStream);
-    
-    // read from a readable
-    otherReadableStream.pipe(stream);
-    
-    // use another duplex stream
-    stream.pipe(transformStream).pipe(stream);
-    
-    // return the stream, so it can be linked
-    return stream
-}
-
-// data handler
-function myMethod (options, data, next) {
-    
-    // Push data to response (readable), without calling the next data handler.
-    // Note, that you have to call next again, to signal that the handler is done.
-    next(data, true);
-    
-    // Pass transformed data to the next data handler.
-    next(null, data);
-    
-    // Emit en error
-    next(new Error('Something bad happend.'));
-}
-```
-
 #####Syntax in detail:
 ```js
 {
@@ -252,3 +256,6 @@ function myMethod (options, data, next) {
     }
 }
 ```
+
+### License
+..coming
