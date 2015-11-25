@@ -1,14 +1,14 @@
 # flow
 Configurable stream networks
-### Usage
+
+### Usage (client and server)
 ```js
 // create a flow (core) instance
 var flow = Flow({
 
     // this method must return a CommonJs exports object.
     module: function (name, callback) {
-        // .. get the module
-        var module = require(name);
+        // .. get the module, ex. require(name)
         callback(null, module);
     },
 
@@ -32,7 +32,11 @@ var flow = Flow({
         return stream;
     }
 });
+
+// load entrypoint (client usage)
+flow.load('*')
 ```
+
 ###Module package extension
 Extend the `npm` `package.json` with a `composition` object, to define a default config for instances of the module:
 ```json
