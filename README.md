@@ -35,6 +35,17 @@ var flow = Flow({
         }
         
         return stream;
+    },
+
+    // load markup (optional)
+    markup: function (url, callback) {
+        // .. load markup
+        callback(null, snippet);
+    },
+
+    // load styles (optional)
+    styles: function (urls) {
+        // ..
     }
 });
 
