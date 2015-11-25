@@ -1,8 +1,8 @@
 "use strict";
 
-var Stream = require('./stream');
-var Instance = require('./instance');
-var parseEvent = require('./parse');
+var Stream = require('./lib/stream');
+var Instance = require('./lib/instance');
+var parseEvent = require('./lib/parse');
 var CoreInst;
 var requiredAdapterMethods = ['module', 'composition', 'request'];
 
