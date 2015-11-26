@@ -103,7 +103,7 @@ A composition config, configures an instance of a module.
 }
 ```
 
-#####Configuration overview:
+##### Flow listener config: `flow`
 ```js
 {
     "eventName": {
