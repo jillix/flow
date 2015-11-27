@@ -154,7 +154,7 @@ function linkStreams (instance, eventStream, flowEvent, options) {
 
         // call flow or stream handler
         var linked;
-        var shOptions = Object.create(section[1][1][1]);
+        var shOptions = Object.assign({}, section[1][1][1]);
         shOptions.session = options.session;
 
         // create a new sub-stream to call handlers
