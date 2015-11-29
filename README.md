@@ -57,20 +57,19 @@ flow.load('*')
 Here's and example how to write flow handlers in your module code:
 ```js
 // stream handler
-exports.method = function (stream, options) {
-    // the first argument "stream" is a a duplex stream.
+exports.method = function (chain, options, onError) {
+
+    // chain.i (input)
+    chain.i.pipe(fs.createWriteStream('file'));
     
-    // pipe to a writable
-    stream.pipe(otherWritableStream);
+    // chain.o (output)
+    fs.createReadStream('file').pipe(chain.o);
     
-    // read from a readable
-    otherReadableStream.pipe(stream);
-    
-    // use another duplex stream
-    stream.pipe(transformStream).pipe(stream);
-    
-    // return the stream, so it can be linked
-    return stream
+    // transform example
+    chain.i.pipe(transformStream).pipe(chain.o);
+
+    // append error handler (recommended)
+    myAwesomeStream.on('error', onError);
 }
 
 // data handler
