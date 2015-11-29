@@ -29,7 +29,7 @@ module.exports = function (adapter) {
     CoreInst._roles = {'*': true};
     CoreInst._ready = true;
     CoreInst._events = {};
-    CoreInst.reset = Instance.reset;
+    CoreInst._reset = Instance.reset;
 
     // save core instance in instances cache
     Instance.instances[CoreInst._name] = CoreInst;
@@ -128,7 +128,7 @@ function linkStreams (instance, eventStream, flowEvent, options) {
 
     var count = 0;
     var errEvent = flowEvent.r ? instance.flow(flowEvent.r) : undefined;
-    var prevStream = eventStream;
+    var input = eventStream;
     var handleError = function (err) {
 
         // write error to error event
@@ -153,53 +153,46 @@ function linkStreams (instance, eventStream, flowEvent, options) {
         }
 
         // call flow or stream handler
-        var linked;
         var shOptions = Object.assign({}, section[1][1][1]);
         shOptions.session = options.session;
 
         // create a new sub-stream to call handlers
-        var subStream = Stream.Event(options);
-        subStream.seq = section[0];
-        subStream.on('error', handleError);
-        shOptions._nextSeq= subStream;
+        var output = Stream.Event(options);
+        output.seq = section[0];
+        output.on('error', handleError);
+
+        // tee streams
+        if (section[1][0] === '|') {
+            input.pipe(output);
+        }
 
         if (typeof section[1][1][0] === 'string') {
-            linked = instance.flow(section[1][1][0], shOptions); 
+            shOptions._nextSeq = output;
+            var fes = instance.flow(section[1][1][0], shOptions)
+            fes.on('error', handleError);
+            input.pipe(fes);
+            if (fes.readable) {
+                fes.pipe(output);
+            }
         } else {
-            linked = section[1][1][0].call(section[1][1][2], prevStream, shOptions) || {};
-        }
-
-        // attach linked stream to input stream
-        if (linked && linked.writable) {
-            prevStream.wOM = !!linked._writableState.objectMode;
-            prevStream.pipe(linked);
-        }
-
-        // bubble errors backwards
-        if (linked && typeof linked.on === 'function') {
-            linked.on('error', handleError);
-        }
-
-        // write linked data to section
-        if (linked && linked.readable) {
-            linked.pipe(subStream);
-        }
-
-        // leaking streams
-        if (section[1][0] === '|') {
-            prevStream.pipe(subStream);
+            section[1][1][0].call(
+                section[1][1][2],
+                {i: input, o: output},
+                shOptions,
+                handleError
+            );
         }
 
         // overwrite previous stream
-        prevStream = subStream;
+        input = output;
 
         // bypass data handler and push directly to readable
         if (sections.length === ++count) {
-            prevStream.on('data', eventStream.push.bind(eventStream));
+            input.on('data', eventStream.push.bind(eventStream));
         }
     });
 
-    return prevStream;
+    return input;
 }
 
 var cbBuffer = {};
