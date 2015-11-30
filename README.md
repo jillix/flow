@@ -52,7 +52,25 @@ var flow = Flow({
 // load entrypoint (client usage)
 flow.load('*')
 ```
-
+### Module instance initialization
+##### "init" Method
+If "init" is a function it is called once after all module resources are loaded.
+```js
+exports.init = function (config, ready) {
+    // do init tasks, then call ready.
+    // if an error is passed the instance will not be cached and no "ready" event will be emmitted.
+    ready(new Error('Init error'));
+};
+```
+##### "ready" listener
+A `ready` event is emitted once after a module is successfully initialized.
+```json
+{
+    "flow": {
+        "ready": {"d": ["..."]}
+    }
+}
+```
 ### Handlers
 Here's and example how to write flow handlers in your module code:
 ```js
