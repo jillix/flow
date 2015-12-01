@@ -51,11 +51,11 @@ function factory (object) {
 
 function emit (eventName,  options, callback) {
 
+    // TODO end handler (concat chunks)
     /*
         this.flow(flowEvent, {
             to: 'instance',
             end: function () {}
-            net: http|ws
             session: {}
         });
     */
@@ -74,11 +74,6 @@ function emit (eventName,  options, callback) {
 
     options.session = options.session || {};
     options.to = options.to || this._name;
-
-    // call event on server
-    if (options.net) {
-        return CoreInst.request(CoreInst, options);
-    }
 
     // create new event stream
     var eventStream = Stream.Event(options);
@@ -167,13 +162,9 @@ function linkStreams (instance, eventStream, flowEvent, options) {
         }
 
         if (typeof section[1][1][0] === 'string') {
-            shOptions._nextSeq = output;
             var fes = instance.flow(section[1][1][0], shOptions)
             fes.on('error', handleError);
-            input.pipe(fes);
-            if (fes.readable) {
-                fes.pipe(output);
-            }
+            input.pipe(fes).pipe(output);
         } else {
             section[1][1][0].call(
                 section[1][1][2],
