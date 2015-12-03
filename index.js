@@ -4,7 +4,7 @@ var Stream = require('./lib/stream');
 var Instance = require('./lib/instance');
 var parseEvent = require('./lib/parse');
 var CoreInst;
-var requiredAdapterMethods = ['module', 'composition'];
+var requiredAdapterMethods = ['module', 'composition', 'net'];
 
 // set adapter api object (singleton)
 module.exports = function (adapter) {
@@ -76,6 +76,26 @@ function emit (eventName,  options, callback) {
     options.session = options.session || {};
     options.to = options.to || this._name;
 
+    // if request handler request call like a stream handler
+    if (options.net) {
+        var netOptions = {objectMode: true};
+        var inStream = Stream.Net(netOptions);
+        var outStream = Stream.Net(netOptions);
+
+        CoreInst.net({i: inStream, o: outStream}, options);
+
+        if (inStream._readableState.ended) {
+            outStream.on('data', inStream.push.bind(inStream));
+        }
+
+        // flow callback
+        if (typeof callback === 'function') {
+            concatStream(outStream, callback);
+        }
+
+        return inStream;
+    }
+
     // create new event stream
     var eventStream = Stream.Event(options);
     eventStream.cork();
@@ -113,18 +133,7 @@ function emit (eventName,  options, callback) {
 
             // flow callback
             if (typeof callback === 'function') {
-                var body = '';
-                var error;
-                (lastSeq || eventStream).on('data', function (chunk) {
-                    body += chunk;
-                })
-                .on('error', function (err) {
-                    error = err;
-                    body = undefined;
-                })
-                .on('end', function () {
-                    callback(error, body);
-                });
+                concatStream(lastSeq || eventStream, callback);
             }
 
             eventStream.emit('sequence');
@@ -134,6 +143,22 @@ function emit (eventName,  options, callback) {
 
     return eventStream;
 };
+
+function concatStream (stream, callback) {
+    var body = '';
+    var error;
+
+    stream.on('data', function (chunk) {
+        body += chunk;
+    })
+    .on('error', function (err) {
+        error = err;
+        body = undefined;
+    })
+    .on('end', function () {
+        callback(error, body);
+    });
+}
 
 function linkStreams (instance, eventStream, flowEvent, options) {
 
