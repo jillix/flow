@@ -4,7 +4,7 @@ var Stream = require('./lib/stream');
 var Instance = require('./lib/instance');
 var parseEvent = require('./lib/parse');
 var CoreInst;
-var requiredAdapterMethods = ['module', 'composition', 'request'];
+var requiredAdapterMethods = ['module', 'composition'];
 
 // set adapter api object (singleton)
 module.exports = function (adapter) {
@@ -51,9 +51,9 @@ function factory (object) {
 
 function emit (eventName,  options, callback) {
 
-    // TODO end handler (concat chunks)
     /*
         this.flow(flowEvent, {
+            emit: 'event',
             to: 'instance',
             end: function () {}
             session: {}
@@ -63,8 +63,9 @@ function emit (eventName,  options, callback) {
     options = typeof options === 'function' ? {end: options} : options || {};
     options.emit = eventName;
 
-    if (typeof callback === 'function') {
-        options.end = callback;
+    if (typeof options.end === 'function') {
+        callback = options.end;
+        delete options.end;
     }
 
     // return if event name is missing
@@ -81,6 +82,7 @@ function emit (eventName,  options, callback) {
 
     // load or get instance
     CoreInst.load(options.to, options.session, function (err, instance) {
+        delete options.to;
 
         if (err) {
             return eventStream.emit('error', err);
@@ -88,6 +90,7 @@ function emit (eventName,  options, callback) {
 
         // link event handler to event stream
         getEvent(instance, options, function (err, flowEvent) {
+            delete options.emit;
 
             if (err) {
                 return eventStream.emit('error', err);
@@ -105,6 +108,22 @@ function emit (eventName,  options, callback) {
                     if (!this._errEmit) {
                         instance.flow(flowEvent.e).end(true);
                     }
+                });
+            }
+
+            // flow callback
+            if (typeof callback === 'function') {
+                var body = '';
+                var error;
+                (lastSeq || eventStream).on('data', function (chunk) {
+                    body += chunk;
+                })
+                .on('error', function (err) {
+                    error = err;
+                    body = undefined;
+                })
+                .on('end', function () {
+                    callback(error, body);
                 });
             }
 
@@ -147,9 +166,7 @@ function linkStreams (instance, eventStream, flowEvent, options) {
             return;
         }
 
-        // call flow or stream handler
         var shOptions = Object.assign({}, section[1][1][1]);
-        shOptions.session = options.session;
 
         // create a new sub-stream to call handlers
         var output = Stream.Event(options);
@@ -166,6 +183,7 @@ function linkStreams (instance, eventStream, flowEvent, options) {
             fes.on('error', handleError);
             input.pipe(fes).pipe(output);
         } else {
+            Object.assign(shOptions, options);
             section[1][1][0].call(
                 section[1][1][2],
                 {i: input, o: output},
@@ -176,12 +194,12 @@ function linkStreams (instance, eventStream, flowEvent, options) {
 
         // overwrite previous stream
         input = output;
-
-        // bypass data handler and push directly to readable
-        if (sections.length === ++count) {
-            input.on('data', eventStream.push.bind(eventStream));
-        }
     });
+
+    // bypass data handler and push directly to readable
+    if (sections.length && eventStream._readableState.ended) {
+        input.on('data', eventStream.push.bind(eventStream));
+    }
 
     return input;
 }
