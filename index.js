@@ -78,22 +78,14 @@ function emit (eventName,  options, callback) {
 
     // if request handler request call like a stream handler
     if (options.net) {
-        var netOptions = {objectMode: true};
-        var inStream = Stream.Net(netOptions);
-        var outStream = Stream.Net(netOptions);
-
-        CoreInst.net({i: inStream, o: outStream}, options);
-
-        if (inStream._readableState.ended) {
-            outStream.on('data', inStream.push.bind(inStream));
-        }
+        var netStream = CoreInst.net(this, options);
 
         // flow callback
         if (typeof callback === 'function') {
-            concatStream(outStream, callback);
+            concatStream(netStream, callback);
         }
 
-        return inStream;
+        return netStream;
     }
 
     // create new event stream
@@ -117,14 +109,14 @@ function emit (eventName,  options, callback) {
             }
 
             // setup sub streams (sequences)
-            var lastSeq;
+            var lastSeq = eventStream;
             if (flowEvent.d) {
                 lastSeq = linkStreams(instance, eventStream, flowEvent, options);
             }
 
             // end handler
             if (flowEvent.e) {
-                (lastSeq || eventStream).on('end', function () {
+                lastSeq.on('end', function () {
                     if (!this._errEmit) {
                         instance.flow(flowEvent.e).end(true);
                     }
@@ -133,7 +125,7 @@ function emit (eventName,  options, callback) {
 
             // flow callback
             if (typeof callback === 'function') {
-                concatStream(lastSeq || eventStream, callback);
+                concatStream(lastSeq, callback);
             }
 
             eventStream.emit('sequence');
@@ -204,7 +196,7 @@ function linkStreams (instance, eventStream, flowEvent, options) {
         }
 
         if (typeof section[1][1][0] === 'string') {
-            var fes = instance.flow(section[1][1][0], shOptions)
+            var fes = instance.flow(section[1][1][0], shOptions);
             fes.on('error', handleError);
             input.pipe(fes).pipe(output);
         } else {
