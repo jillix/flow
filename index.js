@@ -4,7 +4,7 @@ var Stream = require('./lib/stream');
 var Instance = require('./lib/instance');
 var parseEvent = require('./lib/parse');
 var CoreInst;
-var requiredAdapterMethods = ['module', 'composition', 'request'];
+var requiredAdapterMethods = ['module', 'composition', 'net'];
 
 // set adapter api object (singleton)
 module.exports = function (adapter) {
@@ -53,9 +53,9 @@ function emit (eventName,  options, callback) {
 
     /*
         this.flow(flowEvent, {
+            emit: 'event',
             to: 'instance',
             end: function () {}
-            net: http|ws
             session: {}
         });
     */
@@ -63,8 +63,9 @@ function emit (eventName,  options, callback) {
     options = typeof options === 'function' ? {end: options} : options || {};
     options.emit = eventName;
 
-    if (typeof callback === 'function') {
-        options.end = callback;
+    if (typeof options.end === 'function') {
+        callback = options.end;
+        delete options.end;
     }
 
     // return if event name is missing
@@ -75,17 +76,26 @@ function emit (eventName,  options, callback) {
     options.session = options.session || {};
     options.to = options.to || this._name;
 
-    // call event on server
+    // if request handler request call like a stream handler
     if (options.net) {
-        return CoreInst.request(CoreInst, options);
+        var netStream = CoreInst.net(this, options);
+
+        // flow callback
+        if (typeof callback === 'function') {
+            concatStream(netStream.o, callback);
+        }
+
+        return netStream;
     }
 
     // create new event stream
+    var output = Stream.Pass();
     var eventStream = Stream.Event(options);
     eventStream.cork();
 
     // load or get instance
     CoreInst.load(options.to, options.session, function (err, instance) {
+        delete options.to;
 
         if (err) {
             return eventStream.emit('error', err);
@@ -93,24 +103,31 @@ function emit (eventName,  options, callback) {
 
         // link event handler to event stream
         getEvent(instance, options, function (err, flowEvent) {
+            delete options.emit;
 
             if (err) {
                 return eventStream.emit('error', err);
             }
 
             // setup sub streams (sequences)
-            var lastSeq;
+            var lastSeq = eventStream;
             if (flowEvent.d) {
                 lastSeq = linkStreams(instance, eventStream, flowEvent, options);
+                lastSeq.pipe(output);
             }
 
             // end handler
             if (flowEvent.e) {
-                (lastSeq || eventStream).on('end', function () {
+                lastSeq.on('end', function () {
                     if (!this._errEmit) {
                         instance.flow(flowEvent.e).end(true);
                     }
                 });
+            }
+
+            // flow callback
+            if (typeof callback === 'function') {
+                concatStream(lastSeq, callback);
             }
 
             eventStream.emit('sequence');
@@ -118,8 +135,24 @@ function emit (eventName,  options, callback) {
         });
     });
 
-    return eventStream;
+    return {i: eventStream, o: output};
 };
+
+function concatStream (stream, callback) {
+    var body = '';
+    var error;
+
+    stream.on('data', function (chunk) {
+        body += chunk;
+    })
+    .on('error', function (err) {
+        error = err;
+        body = undefined;
+    })
+    .on('end', function () {
+        callback(error, body);
+    });
+}
 
 function linkStreams (instance, eventStream, flowEvent, options) {
 
@@ -152,9 +185,7 @@ function linkStreams (instance, eventStream, flowEvent, options) {
             return;
         }
 
-        // call flow or stream handler
         var shOptions = Object.assign({}, section[1][1][1]);
-        shOptions.session = options.session;
 
         // create a new sub-stream to call handlers
         var output = Stream.Event(options);
@@ -167,14 +198,12 @@ function linkStreams (instance, eventStream, flowEvent, options) {
         }
 
         if (typeof section[1][1][0] === 'string') {
-            shOptions._nextSeq = output;
-            var fes = instance.flow(section[1][1][0], shOptions)
-            fes.on('error', handleError);
-            input.pipe(fes);
-            if (fes.readable) {
-                fes.pipe(output);
-            }
+            var fes = instance.flow(section[1][1][0], shOptions);
+            input.pipe(fes.i);
+            fes.o.on('error', handleError);
+            fes.o.pipe(output);
         } else {
+            Object.assign(shOptions, options);
             section[1][1][0].call(
                 section[1][1][2],
                 {i: input, o: output},
@@ -185,11 +214,6 @@ function linkStreams (instance, eventStream, flowEvent, options) {
 
         // overwrite previous stream
         input = output;
-
-        // bypass data handler and push directly to readable
-        if (sections.length === ++count) {
-            input.on('data', eventStream.push.bind(eventStream));
-        }
     });
 
     return input;

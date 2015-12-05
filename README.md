@@ -71,6 +71,21 @@ A `ready` event is emitted once after a module is successfully initialized.
     }
 }
 ```
+### Instance flow method
+```js
+// call flow from you instance method
+exports.myMethod = function () {
+    var flow = this.flow('event', {/* flow options */}, function (err, data) {
+        // ..
+    });
+    
+    // Input: write data to flow stream
+    flow.i.write(chunk);
+    
+    // Output: receive or pipe data from flow stream
+    flow.o.on('data', function () {});
+}
+```
 ### Handlers
 Here's and example how to write flow handlers in your module code:
 ```js
