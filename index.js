@@ -82,13 +82,14 @@ function emit (eventName,  options, callback) {
 
         // flow callback
         if (typeof callback === 'function') {
-            concatStream(netStream, callback);
+            concatStream(netStream.o, callback);
         }
 
         return netStream;
     }
 
     // create new event stream
+    var output = Stream.Pass();
     var eventStream = Stream.Event(options);
     eventStream.cork();
 
@@ -112,6 +113,7 @@ function emit (eventName,  options, callback) {
             var lastSeq = eventStream;
             if (flowEvent.d) {
                 lastSeq = linkStreams(instance, eventStream, flowEvent, options);
+                lastSeq.pipe(output);
             }
 
             // end handler
@@ -133,7 +135,7 @@ function emit (eventName,  options, callback) {
         });
     });
 
-    return eventStream;
+    return {i: eventStream, o: output};
 };
 
 function concatStream (stream, callback) {
@@ -197,8 +199,9 @@ function linkStreams (instance, eventStream, flowEvent, options) {
 
         if (typeof section[1][1][0] === 'string') {
             var fes = instance.flow(section[1][1][0], shOptions);
-            fes.on('error', handleError);
-            input.pipe(fes).pipe(output);
+            input.pipe(fes.i);
+            fes.o.on('error', handleError);
+            fes.o.pipe(output);
         } else {
             Object.assign(shOptions, options);
             section[1][1][0].call(
@@ -212,11 +215,6 @@ function linkStreams (instance, eventStream, flowEvent, options) {
         // overwrite previous stream
         input = output;
     });
-
-    // bypass data handler and push directly to readable
-    if (sections.length && eventStream._readableState.ended) {
-        input.on('data', eventStream.push.bind(eventStream));
-    }
 
     return input;
 }
