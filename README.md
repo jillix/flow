@@ -151,7 +151,7 @@ A composition config, configures an instance of a module.
             // Flow emit: write data to event and write event result data to next data handlers or streams.
             ">>event",
             
-            // Stream handler: A method that returns a readable, writable or duplex stream.
+            // Custom stream: A method that returns a readable, writable or duplex stream.
             ">*method",
             ">*instance/method",
 
