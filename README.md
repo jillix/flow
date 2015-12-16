@@ -158,7 +158,7 @@ A composition config, configures an instance of a module.
             // Flow emit (leaking): Leak the data also to the next data handlers.
             "|>event",
             
-            // Custom stream (leaking)
+            // Stream handler (leaking)
             "|*method",
             "|*instance/method",
             
@@ -235,8 +235,8 @@ A composition config, configures an instance of a module.
                 "]" +
                 
                 // Emit events locally, over the network, or define
-                // a custom handler to connect you custom streams.
-                "NET[> = flow, * = custom]" +
+                // a stream handler to connect you custom streams.
+                "NET[> = flow, * = stream]" +
 
                 // In case of "<", "/" or "@", the flow stream handler is called,
                 // which connects an event stream to the current data flow.
