@@ -175,6 +175,9 @@ function linkStreams (instance, eventStream, flowEvent, options) {
         console.error(err);
     };
 
+    // handle error on input stream
+    input.on('error', handleError);
+
     sections.forEach(function (section, index) {
 
         if (index === 0) {
