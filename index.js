@@ -166,7 +166,7 @@ function linkStreams (instance, eventStream, flowEvent, options) {
 
         // write error to error event
         if (errEvent) {
-            return errEvent.end(err);
+            return errEvent.i.end(err);
         }
 
         // TODO option to end stream
