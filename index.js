@@ -154,22 +154,28 @@ function concatStream (stream, callback) {
     });
 }
 
-function linkStreams (instance, eventStream, flowEvent, options) {
+function linkStreams (instance, initial, flowEvent, options) {
 
     var sections = flowEvent.d;
-    eventStream.seq = sections[0][0];
+    initial.o = sections[0][0];
+    eventStream = initial.i;
 
     var count = 0;
+    // TODO make it possible to emit error events on external instances
     var errEvent = flowEvent.r ? instance.flow(flowEvent.r) : undefined;
     var input = eventStream;
     var handleError = function (err) {
 
         // write error to error event
         if (errEvent) {
-            return errEvent.i.end(err);
+            input.end();
+            delete instance._events[options.emit];  
+
+            return errEvent.o.end(err);
         }
 
         // TODO option to end stream
+        // TODO write error to origin ouput stream (in case of sockets)
 
         // log error in console
         console.error(err);
@@ -189,6 +195,8 @@ function linkStreams (instance, eventStream, flowEvent, options) {
         }
 
         var shOptions = Object.assign({}, section[1][1][1]);
+        shOptions.arg = options;
+        shOptions.session = options.session || {};
 
         // create a new sub-stream to call handlers
         var output = Stream.Event(options);
@@ -203,10 +211,9 @@ function linkStreams (instance, eventStream, flowEvent, options) {
         if (typeof section[1][1][0] === 'string') {
             var fes = instance.flow(section[1][1][0], shOptions);
             input.pipe(fes.i);
-            fes.o.on('error', handleError);
+            fes.o.on('error', output.emit.bind(output, 'error'));
             fes.o.pipe(output);
         } else {
-            Object.assign(shOptions, options);
             section[1][1][0].call(
                 section[1][1][2],
                 {i: input, o: output},
