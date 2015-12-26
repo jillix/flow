@@ -112,14 +112,15 @@ function emit (eventName,  options, callback) {
             // setup sub streams (sequences)
             if (flowEvent.d) {
                 linkStreams(instance, initial, flowEvent, options);
-                initial.i.emit('sequence');
             }
 
             // end handler
             if (flowEvent.e) {
                 initial.o.on('end', function () {
-                    if (!this._errEmit) {
-                        instance.flow(flowEvent.e).end(true);
+                    if (!initial.i._errEH) {
+                        instance.flow(flowEvent.e[0], flowEvent.e[1]).i.on('ready', function () {
+                            endEvent.i.end(options);
+                        });
                     }
                 });
             }
@@ -129,6 +130,8 @@ function emit (eventName,  options, callback) {
                 concatStream(initial.o, callback);
             }
 
+            initial.i.emit('ready');
+            initial.ready = true;
             initial.i.uncork();
         });
     });
@@ -156,23 +159,29 @@ function linkStreams (instance, initial, flowEvent, options) {
 
     var input = initial.i;
     var first = true;
-
-    // TODO make it possible to emit error events on external instances
-    var errEvent = flowEvent.r ? instance.flow(flowEvent.r) : undefined;
+    var errEvent;
     var handleError = function (err) {
 
+        // emit error on origin ouput stream
+        initial.o.emit('error', err);
+
         // write error to error event
-        if (errEvent) {
-            errEvent.i.end(err);
+        if (flowEvent.r) {
+            errEvent = errEvent || instance.flow(flowEvent.r[0], flowEvent.r[1]);
+            if (errEvent.ready) {
+                errEvent.i.write(err);
+            } else {
+                errEvent.i.on('ready', function () {
+                    errEvent.i.write(err);
+                });
+            }
+
+            // end error stream on initial end
+            initial.o.on('end', errEvent.i.end.bind(errEvent));
         }
 
-        // TODO option to keep stream alive
-        initial.i.end();
-        delete instance._events[options.emit];  
-
-        // write error to origin ouput stream
-        initial.o.emit('error', err);
-        //console.error(err);
+        // TODO keep streams piped
+        // https://github.com/nodejs/node/issues/3045#issuecomment-142975237
     };
 
     // emit error event on initial error
