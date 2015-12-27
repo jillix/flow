@@ -175,11 +175,11 @@ A composition config, configures an instance of a module.
             ["|*instance/method", {"key": "value"}]
         ],
         
-        // if the above flow stream ends, this event will be emitted, no data.
-        "e": "onEndEvent"
+        // if the flow stream ends, this event will be emitted, no data.
+        "e": ["onEndEvent", {"to": "instance", "net": "ws"}]
         
-        // if an error happens somewhere in the above flow, this event will be emitted, with the error as data.
-        "r": "onErrorEvent"
+        // if an error happens somewhere in the flow stream, this event will be emitted, with the error as data.
+        "r": ["onErrorEvent", {"to": "instance", "net": "ws"}]
     ]
 }
 ```
@@ -240,7 +240,7 @@ A composition config, configures an instance of a module.
 
                 // In case of "<", "/" or "@", the flow stream handler is called,
                 // which connects an event stream to the current data flow.
-                "FLOW[(instance/)event]" +
+                "FLOW[event]" +
 
                 //..or..
 
@@ -261,10 +261,10 @@ A composition config, configures an instance of a module.
         ],
         
         // End event
-        "e": "onEndEvent"
+        "e": ["onEndEvent", {"to": "instance"}]
         
         // Error event
-        "r": "onErrorEvent"
+        "r": ["onErrorEvent", {"to": "instance"}]
     }
 }
 ```

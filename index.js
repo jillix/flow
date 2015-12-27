@@ -89,53 +89,54 @@ function emit (eventName,  options, callback) {
     }
 
     // create new event stream
-    var output = Stream.Pass();
-    var eventStream = Stream.Event(options);
-    eventStream.cork();
+    var initial = {
+        i: Stream.Pass(),
+        o: Stream.Pass()
+    };
+    initial.i.cork();
 
     // load or get instance
     CoreInst.load(options.to, options.session, function (err, instance) {
-        delete options.to;
 
         if (err) {
-            return eventStream.emit('error', err);
+            return initial.o.emit('error', err);
         }
 
         // link event handler to event stream
         getEvent(instance, options, function (err, flowEvent) {
-            delete options.emit;
 
             if (err) {
-                return eventStream.emit('error', err);
+                return initial.o.emit('error', err);
             }
 
             // setup sub streams (sequences)
-            var lastSeq = eventStream;
             if (flowEvent.d) {
-                lastSeq = linkStreams(instance, eventStream, flowEvent, options);
-                lastSeq.pipe(output);
+                linkStreams(instance, initial, flowEvent, options);
             }
 
             // end handler
             if (flowEvent.e) {
-                lastSeq.on('end', function () {
-                    if (!this._errEmit) {
-                        instance.flow(flowEvent.e).end(true);
+                initial.o.on('end', function () {
+                    if (!initial.i._errEH) {
+                        instance.flow(flowEvent.e[0], flowEvent.e[1]).i.on('ready', function () {
+                            endEvent.i.end(options);
+                        });
                     }
                 });
             }
 
             // flow callback
             if (typeof callback === 'function') {
-                concatStream(lastSeq, callback);
+                concatStream(initial.o, callback);
             }
 
-            eventStream.emit('sequence');
-            eventStream.uncork();
+            initial.i.emit('ready');
+            initial.ready = true;
+            initial.i.uncork();
         });
     });
 
-    return {i: eventStream, o: output};
+    return initial;
 };
 
 function concatStream (stream, callback) {
@@ -154,38 +155,39 @@ function concatStream (stream, callback) {
     });
 }
 
-function linkStreams (instance, eventStream, flowEvent, options) {
+function linkStreams (instance, initial, flowEvent, options) {
 
-    var sections = flowEvent.d;
-    eventStream.seq = sections[0][0];
-
-    var count = 0;
-    var errEvent = flowEvent.r ? instance.flow(flowEvent.r) : undefined;
-    var input = eventStream;
+    var input = initial.i;
+    var first = true;
+    var errEvent;
     var handleError = function (err) {
 
+        // emit error on origin ouput stream
+        initial.o.emit('error', err);
+
         // write error to error event
-        if (errEvent) {
-            return errEvent.end(err);
+        if (flowEvent.r) {
+            errEvent = errEvent || instance.flow(flowEvent.r[0], flowEvent.r[1]);
+            if (errEvent.ready) {
+                errEvent.i.write(err);
+            } else {
+                errEvent.i.on('ready', function () {
+                    errEvent.i.write(err);
+                });
+            }
+
+            // end error stream on initial end
+            initial.o.on('end', errEvent.i.end.bind(errEvent));
         }
 
-        // TODO option to end stream
-
-        // log error in console
-        console.error(err);
+        // TODO keep streams piped
+        // https://github.com/nodejs/node/issues/3045#issuecomment-142975237
     };
 
-    sections.forEach(function (section, index) {
+    // emit error event on initial error
+    initial.i.on('error', handleError);
 
-        if (index === 0) {
-            return;
-        }
-
-        if (!section[1]) {
-            return;
-        }
-
-        var shOptions = Object.assign({}, section[1][1][1]);
+    flowEvent.d.forEach(function (section, index) {
 
         // create a new sub-stream to call handlers
         var output = Stream.Event(options);
@@ -193,30 +195,39 @@ function linkStreams (instance, eventStream, flowEvent, options) {
         output.on('error', handleError);
 
         // tee streams
-        if (section[1][0] === '|') {
+        if (section[1] && section[1][0] === '|' || first) {
             input.pipe(output);
+            first = false;
         }
 
-        if (typeof section[1][1][0] === 'string') {
-            var fes = instance.flow(section[1][1][0], shOptions);
-            input.pipe(fes.i);
-            fes.o.on('error', handleError);
-            fes.o.pipe(output);
-        } else {
-            Object.assign(shOptions, options);
-            section[1][1][0].call(
-                section[1][1][2],
-                {i: input, o: output},
-                shOptions,
-                handleError
-            );
+        // pipe to next stream
+        if (section[1]) {
+
+            var shOptions = Object.assign({}, section[1][1][1]);
+            shOptions.arg = options;
+            shOptions.session = options.session || {};
+
+            if (typeof section[1][1][0] === 'string') {
+                var fes = instance.flow(section[1][1][0], shOptions);
+                input.pipe(fes.i);
+                fes.o.on('error', output.emit.bind(output, 'error'));
+                fes.o.pipe(output);
+
+            } else if (typeof section[1][1][0] === 'function') {
+                section[1][1][0].call(
+                    section[1][1][2],
+                    {i: input, o: output},
+                    shOptions,
+                    handleError
+                );
+            }
         }
 
-        // overwrite previous stream
+        // event stream sequence handler is the new input
         input = output;
     });
 
-    return input;
+    input.pipe(initial.o);
 }
 
 var cbBuffer = {};
