@@ -269,5 +269,5 @@ A composition config, configures an instance of a module.
 }
 ```
 
-### License
-..coming
+### License (MIT)
+See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
