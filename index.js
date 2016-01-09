@@ -228,6 +228,13 @@ function linkStreams (instance, initial, flowEvent, options) {
     });
 
     input.pipe(initial.o);
+
+    // read out data if no data listener is added, to prevent buffer overflow
+    if (!initial.o._events.data) {
+        initial.o.on('data', function (chunk) {
+            console.error(new Error('Flow: Uncaught data chunk: Event: ', options.emit));
+        });
+    }
 }
 
 var cbBuffer = {};
