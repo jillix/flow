@@ -4,7 +4,7 @@ var Stream = require('./lib/stream');
 var Instance = require('./lib/instance');
 var parseEvent = require('./lib/parse');
 var CoreInst;
-var requiredAdapterMethods = ['module', 'composition', 'net'];
+var requiredAdapterMethods = ['mod', 'mic', 'net'];
 
 // set adapter api object (singleton)
 module.exports = function (adapter) {
@@ -21,7 +21,7 @@ module.exports = function (adapter) {
     });
 
     // create core instance
-    CoreInst = factory(adapter);
+    CoreInst = factory.call(adapter, adapter);
 
     CoreInst.load = Instance.factory;
     CoreInst.factory = factory;
@@ -46,6 +46,12 @@ function factory (object) {
     var clone = Object.create(object);
     clone.flow = emit;
     clone._flow = clone._flow || {};
+
+    // reset flow instances
+    if (typeof this.reset === 'function') {
+        clone.reset = this.reset;
+    }
+
     return clone;
 }
 
