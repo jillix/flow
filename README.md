@@ -12,20 +12,20 @@ var Flow = require('flow');
 var flow = Flow({
 
     // this method must return a CommonJs exports object.
-    module: function (name, callback) {
+    mod: function (name, callback) {
         // .. get the module, ex. require(name)
         callback(null, module);
     },
 
-    // return a flow instance composition
-    composition: function (name, callback) {
+    // return a flow module instance composition (mic)
+    mic: function (name, callback) {
         // .. get the config
         callback(null, config);
     }
 
     // connect to a external flow event stream (multiplexer)
     // this method must return a writable stream (duplex, transform, ect.)
-    request: function (coreInst, options) {
+    net: function (coreInst, options) {
         // this method is called, when the "net" option is set.
         switch (option.net) {
             case "http":
@@ -60,10 +60,12 @@ A `ready` event is emitted once after a module is successfully initialized.
     }
 }
 ```
-### Instance flow method
+### Emit a stream event
 ```js
-// call flow from you instance method
+
 exports.myMethod = function () {
+
+    // call flow from you instance method
     var flow = this.flow('event', {/* flow options */}, function (err, data) {
         // ..
     });
@@ -72,7 +74,12 @@ exports.myMethod = function () {
     flow.i.write(chunk);
     
     // Output: receive or pipe data from flow stream
-    flow.o.on('data', function () {});
+    // Info: It's mandatory to read out the data, otherwise the stream
+    // buffers will fill up.
+    flow.o.on('data', function (chunk) {});
+
+    // Get errors
+    flow.o.on('error', function (err) {});
 }
 ```
 ### Handlers
