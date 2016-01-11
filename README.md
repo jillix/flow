@@ -35,17 +35,6 @@ var flow = Flow({
         }
         
         return stream;
-    },
-
-    // load markup (optional)
-    markup: function (url, callback) {
-        // .. load markup
-        callback(null, snippet);
-    },
-
-    // load styles (optional)
-    styles: function (urls) {
-        // ..
     }
 });
 
@@ -129,9 +118,7 @@ A composition config, configures an instance of a module.
     "module": "module",
     "config": {},
     "flow": {},
-    "load": ["instance"],
-    "styles": ["/path/file.css"],
-    "markup": ["/path/file.html"]
+    "load": ["instance"]
 }
 ```
 
@@ -181,91 +168,6 @@ A composition config, configures an instance of a module.
         // if an error happens somewhere in the flow stream, this event will be emitted, with the error as data.
         "r": ["onErrorEvent", {"to": "instance", "net": "ws"}]
     ]
-}
-```
-
-#####Syntax in detail:
-```js
-{
-    // Those events can be called with `instance.flow("eventName")`     
-    "eventName": {
-        
-        // Data handlers:
-        // If someone writes to the event stream, this array defines the sequenze,
-        // in which the data chunk is passed to the handler functions.
-        "d": [
-
-            // Handler:
-            // A handler is a method of an instance,
-            // optionally pass an `options` object to the function call.
-            [
-                // Define the `type` of the handler function.
-                "TYPE[" +
-
-                    // The ":" char defines a data handler.
-                    ":," +
-
-                    // The "." char defines a data hanlder,
-                    // that is removed after the first data chunk.
-                    "." +
-                "]" +
-
-                // The method path is a flat object key (dot notation).
-                // If no instance is defined, the instance of the emitter (this.flow()) is used
-                "METHOD[(instance/)method.path]",
-
-                // An `optional` JSON object, that is passed to the handler function call.
-                {"key": "value"}
-            ],
-
-            // Stream handler:
-            // Stream handlers receive the raw event stream object to read from, or write to.
-            // Stream handlers are always called, before the data handlers.
-            [
-                // LINK types define how a linked stream is connected to the flow network.
-                "LINK[" +
-
-                    // Write the data to the linked stream and let the linked stream write
-                    // data to the next stream in the network.
-                    ">," +
-
-                    // Write data to the linked stream and simultaneously
-                    // to the next stream in the network
-                    "|" +
-                "]" +
-                
-                // Emit events locally, over the network, or define
-                // a stream handler to connect you custom streams.
-                "NET[> = flow, * = stream]" +
-
-                // In case of "<", "/" or "@", the flow stream handler is called,
-                // which connects an event stream to the current data flow.
-                "FLOW[event]" +
-
-                //..or..
-
-                // The method path is a flat object key (dot notation).
-                // If no instance is defined, the instance of the emitter (this.flow()) is used
-                "METHOD[(instance/)method.path]",
-
-                // An `optional` JSON object, that is passed to the handler function call.
-                {
-                    // If your custom stream is in buffer mode,
-                    // disbale object mode on the event stream.
-                    "objectMode": false,
-                    "to": "instance",
-                    "net": "http|ws",
-                    "key": "value"
-                }
-            ]
-        ],
-        
-        // End event
-        "e": ["onEndEvent", {"to": "instance"}]
-        
-        // Error event
-        "r": ["onErrorEvent", {"to": "instance"}]
-    }
 }
 ```
 
