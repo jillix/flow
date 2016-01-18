@@ -2,59 +2,40 @@
 
 var Stream = require('./lib/stream');
 var Instance = require('./lib/instance');
-var parseEvent = require('./lib/parse');
-var CoreInst;
+var Parse = require('./lib/parse');
 var requiredAdapterMethods = ['mod', 'mic', 'net'];
+var Flow;
 
-// set adapter api object (singleton)
+// create flow controller api object (singleton)
 module.exports = function (adapter) {
 
-    if (CoreInst) {
-        return CoreInst;
+    if (Flow) {
+        return Flow;
     }
+
+    Flow = {
+        flow: emit,
+        load: Instance.factory,
+        _reset: Instance.reset,
+        _parse: Parse.event
+    };
 
     // check if adapter has all the required methods.
     requiredAdapterMethods.forEach(function (key) {
+
+        // check adapter methods
         if (typeof adapter[key] !== 'function') {
             throw new Error('Flow: "adapter.' + key + '" is not a function.');
         }
+
+        // extend flow controller with adapter methods
+        Flow[key] = adapter[key];
     });
 
-    // create core instance
-    CoreInst = factory.call(adapter, adapter);
-
-    CoreInst.load = Instance.factory;
-    CoreInst.factory = factory;
-    CoreInst._name = '@';
-    CoreInst._roles = {'*': true};
-    CoreInst._ready = true;
-    CoreInst._events = {};
-    CoreInst._reset = Instance.reset;
-
-    // save core instance in instances cache
-    Instance.instances[CoreInst._name] = CoreInst;
-
-    // init event parser with core instance
-    parseEvent = parseEvent(CoreInst);
-
-    return CoreInst;
+    return Flow;
 };
 
-// flow factory
-function factory (object) {
-
-    var clone = Object.create(object);
-    clone.flow = emit;
-    clone._flow = clone._flow || {};
-
-    // reset flow instances
-    if (typeof this.reset === 'function') {
-        clone.reset = this.reset;
-    }
-
-    return clone;
-}
-
+// create a new flow event stream
 function emit (eventName,  options, callback) {
 
     /*
@@ -84,7 +65,7 @@ function emit (eventName,  options, callback) {
 
     // if request handler request call like a stream handler
     if (options.net) {
-        var netStream = CoreInst.net(this, options);
+        var netStream = Flow.net(this, options);
 
         // flow callback
         if (typeof callback === 'function') {
@@ -102,7 +83,7 @@ function emit (eventName,  options, callback) {
     initial.i.cork();
 
     // load or get instance
-    CoreInst.load(options.to, options.session, function (err, instance) {
+    Flow.load(options.to, options.session, function (err, instance) {
 
         if (err) {
             return initial.o.emit('error', err);
@@ -263,7 +244,7 @@ function getEvent (instance, options, callback) {
 
     // collect all handlers for specific flow event
     cbBuffer[options.emit] = [];
-    parseEvent(instance, options, function (err, event) {
+    Flow._parse(instance, options, function (err, event) {
         
         if (!err) {
 
