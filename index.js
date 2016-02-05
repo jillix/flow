@@ -63,18 +63,6 @@ function emit (eventName,  options, callback) {
     options.session = options.session || {};
     options.to = options.to || this._name;
 
-    // if request handler request call like a stream handler
-    if (options.net) {
-        var netStream = Flow.net(this, options);
-
-        // flow callback
-        if (typeof callback === 'function') {
-            concatStream(netStream.o, callback);
-        }
-
-        return netStream;
-    }
-
     // create new event stream
     var initial = {
         i: Stream.Pass(),
