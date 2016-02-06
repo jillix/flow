@@ -3,20 +3,29 @@
 var Stream = require('./lib/stream');
 var Instance = require('./lib/instance');
 var Parse = require('./lib/parse');
-var requiredAdapterMethods = ['mod', 'mic', 'net'];
+var requiredAdapterMethods = ['mod', 'mic'];
 var Flow;
 
 // create flow controller api object (singleton)
-module.exports = function (adapter) {
+module.exports = function (config, adapter) {
 
-    if (Flow) {
-        return Flow;
+    if (!adapter) {
+        adapter = config;
+        config = {};
     }
 
     Flow = {
         flow: emit,
         load: Instance.factory,
-        _reset: Instance.reset,
+        reset: function () {
+            Instance.reset();
+
+            // call custom reset method
+            if (typeof this._reset === 'function') {
+                this._reset.apply(this, Array.apply(null, arguments));
+            }
+        },
+        config: config,
         _parse: Parse.event
     };
 
@@ -32,7 +41,7 @@ module.exports = function (adapter) {
         Flow[key] = adapter[key];
     });
 
-    return Flow;
+    return (module.exports = Flow);
 };
 
 // create a new flow event stream
