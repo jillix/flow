@@ -45,32 +45,27 @@ module.exports = function (config, adapter) {
 };
 
 // create a new flow event stream
-function emit (eventName,  options, callback) {
+function emit (event, options, callback) {
 
-    /*
-        this.flow(flowEvent, {
-            emit: 'event',
-            to: 'instance',
-            end: function () {}
-            session: {}
-        });
-    */
+    var instance = this._name;
+    if (event.indexOf('/') > 0) {
+        event = event.split('/');
+        instance = event[0];
+        event = event[1];
+    }
 
-    options = typeof options === 'function' ? {end: options} : options || {};
-    options.emit = eventName;
-
-    if (typeof options.end === 'function') {
-        callback = options.end;
-        delete options.end;
+    if (typeof options === 'function') {
+        callback = options;
+        options = {};
     }
 
     // return if event name is missing
-    if (!options.emit) {
+    if (!event) {
         throw new Error('Flow call without event name.');
     }
 
-    options.session = options.session || {};
-    options.to = options.to || this._name;
+    options = options || {};
+    var session = options.session || {};
 
     // create new event stream
     var initial = {
@@ -80,29 +75,29 @@ function emit (eventName,  options, callback) {
     initial.i.cork();
 
     // load or get instance
-    Flow.load(options.to, options.session, function (err, instance) {
+    Flow.load(instance, session, function (err, instance) {
 
         if (err) {
             return initial.o.emit('error', err);
         }
 
         // link event handler to event stream
-        getEvent(instance, options, function (err, flowEvent) {
+        getEvent(instance, event, session, function (err, event_stream) {
 
             if (err) {
                 return initial.o.emit('error', err);
             }
 
             // setup sub streams (sequences)
-            if (flowEvent.d) {
-                linkStreams(instance, initial, flowEvent, options);
+            if (event_stream.d) {
+                linkStreams(instance, event, initial, event_stream, options);
             }
 
             // end handler
-            if (flowEvent.e) {
+            if (event_stream.e) {
                 initial.o.on('end', function () {
                     if (!initial.i._errEH) {
-                        instance.flow(flowEvent.e[0], flowEvent.e[1]).i.on('ready', function () {
+                        instance.flow(event_stream.e[0], event_stream.e[1]).i.on('ready', function () {
                             endEvent.i.end(options);
                         });
                     }
@@ -139,7 +134,7 @@ function concatStream (stream, callback) {
     });
 }
 
-function linkStreams (instance, initial, flowEvent, options) {
+function linkStreams (instance, event, initial, event_stream, options) {
 
     var input = initial.i;
     var first = true;
@@ -150,8 +145,8 @@ function linkStreams (instance, initial, flowEvent, options) {
         initial.o.emit('error', err);
 
         // write error to error event
-        if (flowEvent.r) {
-            errEvent = errEvent || instance.flow(flowEvent.r[0], flowEvent.r[1]);
+        if (event_stream.r) {
+            errEvent = errEvent || instance.flow(event_stream.r[0], event_stream.r[1]);
             if (errEvent.ready) {
                 errEvent.i.write(err);
             } else {
@@ -171,7 +166,7 @@ function linkStreams (instance, initial, flowEvent, options) {
     // emit error event on initial error
     initial.i.on('error', handleError);
 
-    flowEvent.d.forEach(function (section, index) {
+    event_stream.d.forEach(function (section, index) {
 
         // create a new sub-stream to call handlers
         var output = Stream.Event(options);
@@ -187,21 +182,22 @@ function linkStreams (instance, initial, flowEvent, options) {
         // pipe to next stream
         if (section[1]) {
 
-            var shOptions = Object.assign({}, section[1][1][1]);
-            shOptions.arg = options;
-            shOptions.session = options.session || {};
-
-            if (typeof section[1][1][0] === 'string') {
-                var fes = instance.flow(section[1][1][0], shOptions);
+            if (typeof section[1][1] === 'string') {
+                var fes = instance.flow(section[1][1], options);
                 input.pipe(fes.i);
                 fes.o.on('error', output.emit.bind(output, 'error'));
                 fes.o.pipe(output);
 
             } else if (typeof section[1][1][0] === 'function') {
+
+                // attach flow composition options to caller arguments
+                options._ = section[1][1][1];
+
+                // call stream handler
                 section[1][1][0].call(
                     section[1][1][2],
                     {i: input, o: output},
-                    shOptions,
+                    options,
                     handleError
                 );
             }
@@ -216,47 +212,47 @@ function linkStreams (instance, initial, flowEvent, options) {
     // read out data if no data listener is added, to prevent buffer overflow
     if (!initial.o._events.data) {
         initial.o.on('data', function (chunk) {
-            console.error(new Error('Flow: Uncaught data chunk: Event: ', options.emit));
+            console.error(new Error('Flow: Uncaught data chunk: Event:',instance._name + '/' + event));
         });
     }
 }
 
 var cbBuffer = {};
-function getEvent (instance, options, callback) {
+function getEvent (instance, event, session, callback) {
 
     // return cached event
-    if (instance._events[options.emit]) {
-        return callback(null, instance._events[options.emit]);
+    if (instance._events[event]) {
+        return callback(null, instance._events[event]);
     }
 
     // buffer callback
-    if (cbBuffer[options.emit]) {
-        return cbBuffer[options.emit].push(callback);
+    if (cbBuffer[event]) {
+        return cbBuffer[event].push(callback);
     }
 
     // check if event is configured
-    if (!instance._flow[options.emit]) {
-        return callback(new Error('Flow.getEvent: Event "' + options.emit + '" not found on instance "' + instance._name+ '".'));
+    if (!instance._flow[event]) {
+        return callback(new Error('Flow.getEvent: Event "' + event + '" not found on instance "' + instance._name+ '".'));
     }
 
     // collect all handlers for specific flow event
-    cbBuffer[options.emit] = [];
-    Flow._parse(instance, options, function (err, event) {
+    cbBuffer[event] = [];
+    Flow._parse(instance, event, session, function (err, event_stream) {
         
         if (!err) {
 
             // cache event
-            instance._events[options.emit] = event;
+            instance._events[event] = event_stream;
         }
 
-        callback(err, event);
+        callback(err, event_stream);
 
         // call buffered callbacks
-        if (cbBuffer[options.emit]) {
-            cbBuffer[options.emit].forEach(function (cb) {
-                cb(err, event);
+        if (cbBuffer[event]) {
+            cbBuffer[event].forEach(function (cb) {
+                cb(err, event_stream);
             });
-            delete cbBuffer[options.emit];
+            delete cbBuffer[event];
         }
     });
 }
