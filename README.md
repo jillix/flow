@@ -23,18 +23,9 @@ var flow = Flow({
         callback(null, config);
     }
 
-    // connect to a external flow event stream (multiplexer)
-    // this method must return a writable stream (duplex, transform, ect.)
-    net: function (coreInst, options) {
-        // this method is called, when the "net" option is set.
-        switch (option.net) {
-            case "http":
-                // .. create http request stream
-            case "ws":
-                // .. create ws multiplexer
-        }
-        
-        return stream;
+    // custom reset handler
+    _reset: function () {
+        // .. reset stuff, ex. DOM
     }
 });
 
@@ -66,7 +57,7 @@ A `ready` event is emitted once after a module is successfully initialized.
 exports.myMethod = function () {
 
     // call flow from you instance method
-    var flow = this.flow('event', {/* flow options */}, function (err, data) {
+    var flow = this.flow('event', {/* argument options */}, function (err, data) {
         // ..
     });
     
@@ -144,6 +135,7 @@ A composition config, configures an instance of a module.
             
             // Flow emit: write data to event and write event result data to next data handlers or streams.
             ">>event",
+            ">>instance/event",
             
             // Custom stream: A method that returns a readable, writable or duplex stream.
             ">*method",
@@ -151,6 +143,7 @@ A composition config, configures an instance of a module.
 
             // Flow emit (leaking): Leak the data also to the next data handlers.
             "|>event",
+            "|>instance/event",
             
             // Stream handler (leaking)
             "|*method",
@@ -161,10 +154,8 @@ A composition config, configures an instance of a module.
             [":instance/method", {"key": "value"}],
             [".method", {"key": "value"}],
             [".instance/method", {"key": "value"}],
-            [">>event", {"to": "instance", "net": "ws"}],
             [">*method", {"key": "value"}],
             [">*instance/method", {"key": "value"}],
-            ["|>event", {"to": "instance", "net": "ws"}],
             ["|*method", {"key": "value"}],
             ["|*instance/method", {"key": "value"}]
         ],
