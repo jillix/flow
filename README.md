@@ -161,10 +161,10 @@ A composition config, configures an instance of a module.
         ],
         
         // if the flow stream ends, this event will be emitted, no data.
-        "e": ["onEndEvent", {"to": "instance", "net": "ws"}]
+        "e": "instance/onEndEvent"
         
         // if an error happens somewhere in the flow stream, this event will be emitted, with the error as data.
-        "r": ["onErrorEvent", {"to": "instance", "net": "ws"}]
+        "r": "instance/onErrorEvent"
     ]
 }
 ```
