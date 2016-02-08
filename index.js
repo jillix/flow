@@ -97,7 +97,7 @@ function emit (event, options, callback) {
             if (event_stream.e) {
                 initial.o.on('end', function () {
                     if (!initial.i._errEH) {
-                        instance.flow(event_stream.e[0], event_stream.e[1]).i.on('ready', function () {
+                        instance.flow(event_stream.e, options).i.on('ready', function () {
                             endEvent.i.end(options);
                         });
                     }
@@ -146,7 +146,7 @@ function linkStreams (instance, event, initial, event_stream, options) {
 
         // write error to error event
         if (event_stream.r) {
-            errEvent = errEvent || instance.flow(event_stream.r[0], event_stream.r[1]);
+            errEvent = errEvent || instance.flow(event_stream.r, options);
             if (errEvent.ready) {
                 errEvent.i.write(err);
             } else {
