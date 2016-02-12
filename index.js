@@ -191,7 +191,7 @@ function linkStreams (instance, event, initial, event_stream, options) {
             } else if (typeof section[1][1][0] === 'function') {
 
                 // attach flow composition options to caller arguments
-                options._ = section[1][1][1];
+                options._ = section[1][1][1] || {};
 
                 // call stream handler
                 section[1][1][0].call(
