@@ -74,6 +74,11 @@ function emit (event, options, callback) {
     };
     initial.i.cork();
 
+    // flow callback
+    if (typeof callback === 'function') {
+        concatStream(initial.o, callback);
+    }
+
     // load or get instance
     Flow.load(instance, session, function (err, instance) {
 
@@ -102,11 +107,6 @@ function emit (event, options, callback) {
                         });
                     }
                 });
-            }
-
-            // flow callback
-            if (typeof callback === 'function') {
-                concatStream(initial.o, callback);
             }
 
             initial.i.emit('ready');
