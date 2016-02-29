@@ -15,12 +15,6 @@
     "stream",
     "network"
   ],
-  "dependencies": {
-    "stream-browserify": "^2.0.1"
-  },
-  "browser": {
-    "stream": "stream-browserify"
-  },
   "engine": {
     "node": ">=5"
   },
