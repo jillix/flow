@@ -1,10 +1,9 @@
 "use strict";
 
+var Flow;
 var Stream = require('./lib/stream');
 var Instance = require('./lib/instance');
 var Parse = require('./lib/parse');
-var requiredAdapterMethods = ['mod', 'mic'];
-var Flow;
 
 // create flow controller api object (singleton)
 module.exports = function (config, adapter) {
@@ -14,7 +13,13 @@ module.exports = function (config, adapter) {
         config = {};
     }
 
-    Flow = {
+    // check if adapter has all the required methods.
+    if (!adapter.mod || !adapter.mic) {
+        throw new Error('Flow: "Invalid adapter:', Object.keys(adapter));
+    }
+
+    // return an replace constructor
+    return (Flow = module.exports = {
         flow: emit,
         load: Instance.factory,
         reset: function () {
@@ -26,22 +31,10 @@ module.exports = function (config, adapter) {
             }
         },
         config: config,
-        _parse: Parse.event
-    };
-
-    // check if adapter has all the required methods.
-    requiredAdapterMethods.forEach(function (key) {
-
-        // check adapter methods
-        if (typeof adapter[key] !== 'function') {
-            throw new Error('Flow: "adapter.' + key + '" is not a function.');
-        }
-
-        // extend flow controller with adapter methods
-        Flow[key] = adapter[key];
+        _parse: Parse.event,
+        mod: adapter.mod,
+        mic: adapter.mic
     });
-
-    return (module.exports = Flow);
 };
 
 // create a new flow event stream
