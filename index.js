@@ -3,6 +3,22 @@ var scope;
 
 module.exports = Flow;
 
+/* Cache data structure: {
+    instance: {
+        inst: {}, 
+        ready: true,
+        parsed: {
+            event: {
+                d: [
+                    [sequence]
+                ],
+                e: ["instance/end", {}],
+                r: ["instance/error", {}],
+                s: []
+            }
+        }
+    }
+}*/
 function init (options) {
 
     if (!options.mic || !options.mod) {
@@ -13,22 +29,6 @@ function init (options) {
         flow: Flow,
         mic: options.mic,
         mod: options.mod,
-        /* Cache data structure: {
-            instance: {
-                inst: {}, 
-                ready: true,
-                parsed: {
-                    event: {
-                        d: [
-                            [sequence]
-                        ],
-                        e: ["instance/end", {}],
-                        r: ["instance/error", {}],
-                        s: []
-                    }
-                }
-            }
-        }*/
         cache: options.cache || {},
         reset: function () {
             this.cache = {};
