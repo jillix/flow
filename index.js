@@ -41,12 +41,13 @@ function init (options) {
 
             return [inst, path];
         },
-        get: function (item, emitter, event) {
+        get: function (item, emitter, event, onError) {
 
             if (item.ready) {
                 emitter.emit('_flow_' + event, item);
             } else {
                 item.once('ready', emitter.emit.bind(emitter, '_flow_' + event, item));
+                item.once('error', onError);
             }
 
             return emitter;
