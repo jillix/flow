@@ -31,6 +31,9 @@ function init (options) {
         mod: options.mod,
         cache: options.cache || {},
         reset: function () {
+            if (typeof options.reset === 'function') {
+                options.reset.call(this);
+            }
             this.cache = {};
         },
         path: function parsePath (path, inst) {
@@ -41,17 +44,19 @@ function init (options) {
 
             return [inst, path];
         },
-        get: function (item, emitter, event, onError) {
+        get: function (item, emitter, event) {
 
             if (item.ready) {
-                emitter.emit('_flow_' + event, item);
-            } else {
-                item.once('ready', emitter.emit.bind(emitter, '_flow_' + event, item));
-                item.once('error', onError);
+                process.nextTick(emitter.emit.bind(emitter, '_flow_' + event, item));
+                return true;
             }
 
-            return emitter;
+            item.once('ready', emitter.emit.bind(emitter, '_flow_' + event, item));
+            item.once('error', console.error.bind(console, 'Flow.' + event + ':'));
+
+            return;
         }
+
     };
 }
 
