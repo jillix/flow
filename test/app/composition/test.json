@@ -1,0 +1,60 @@
+{
+    "name": "test",
+    "module": "test",
+    "roles": {"*": true},
+    "flow": {
+        "data": {
+            "d": [
+                [":data", {"test": true, "id": "1"}],
+                [":data", {"test": true, "id": "2"}],
+                [">>end", {"test": true}]
+            ],
+            "e": "end",
+            "r": "error"
+        },
+        "stream": {
+            "d": [
+                [">*node", {"test": true, "flow": "data"}]
+            ]
+        },
+        "emit": {
+            "d": [[">>emit", {"test": true}]]
+        },
+        "end": {
+            "d": [[":data", {"test": true, "id": "3"}]]
+        },
+        "error": {
+            "d": [[":error", {"test": true}]]
+        }, 
+        "data_emit_data": {
+            "d": [["", {"test": "true"}]]
+        },
+        "data_emit": {
+            "d": [["", {"test": "true"}]]
+        },
+        "emit_data": {
+            "d": [["", {"test": "true"}]]
+        },
+        "data_stream_data": {
+            "d": [["", {"test": "true"}]]
+        },
+        "data_stream": {
+            "d": [["", {"test": "true"}]]
+        },
+        "stream_data": {
+            "d": [["", {"test": "true"}]]
+        },
+        "emit_stream": {
+            "d": [["", {"test": "true"}]]
+        },
+        "stream_emit": {
+            "d": [["", {"test": "true"}]]
+        },
+        "emit_emit": {
+            "d": [["", {"test": "true"}]]
+        },
+        "stream_stream": {
+            "d": [["", {"test": "true"}]]
+        }
+    }
+}
