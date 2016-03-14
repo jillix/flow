@@ -24,9 +24,12 @@
   "homepage": "https://github.com/jillix/flow",
   "main": "index",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tap test/*.js"
   },
   "dependencies": {
     "libobject": "github:jillix/libobject"
+  },
+  "devDependencies": {
+    "tap": "^5.7.0"
   }
 }
