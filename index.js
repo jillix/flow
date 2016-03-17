@@ -90,6 +90,7 @@ function Flow (event, options, callback) {
     return stream;
 }
 
+// TODO concat buffers
 function concatStream (stream, callback) {
     var body = '';
     var error;
