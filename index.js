@@ -44,17 +44,15 @@ function init (options) {
 
             return [inst, path];
         },
-        get: function (item, emitter, event) {
+        get: function (item, emitter, cb) {
 
             if (item.ready) {
-                process.nextTick(emitter.emit.bind(emitter, '_flow_' + event, item));
+                cb && process.nextTick(cb.bind(emitter, item));
                 return true;
             }
 
-            item.once('ready', emitter.emit.bind(emitter, '_flow_' + event, item));
-            item.once('error', console.error.bind(console, 'Flow.' + event + ':'));
-
-            return;
+            cb && item.once('ready', cb.bind(emitter, item));
+            item.once('error', console.error.bind(console, 'Flow.get:'));
         }
 
     };
