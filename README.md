@@ -48,10 +48,10 @@ exports.init = function (config, ready) {
 Stream handler receive the previous stream in the the event chain and can also
 return a duplex/transform or readable stream, which gets piped into the chain.
 ```js
-exports.myMethod = function (hose, options) {
+exports.myMethod = function (options, stream) {
 
     // read from flow event
-    hose.pipe(fs.createWriteStream('file'));
+    stream.pipe(fs.createWriteStream('file'));
     
     // write to flow event
     return fs.createReadStream('file');
