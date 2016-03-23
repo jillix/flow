@@ -7,18 +7,18 @@
             "d": [
                 [":data", {"test": true, "id": "1"}],
                 [":data", {"test": true, "id": "2"}],
-                [">>end", {"test": true}]
+                [">end", {"test": true}]
             ],
             "e": "end",
             "r": "error"
         },
         "stream": {
             "d": [
-                [">*node", {"test": true, "flow": "data"}]
+                ["*node", {"test": true, "flow": "data"}]
             ]
         },
         "emit": {
-            "d": [[">>emit", {"test": true}]]
+            "d": [[">emit", {"test": true}]]
         },
         "end": {
             "d": [[":data", {"test": true, "id": "3"}]]
