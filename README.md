@@ -4,7 +4,7 @@ Configurable stream networks
 ### Installation
 With NPM: `npm install jillix/flow`.
 
-### Usage (client and server)
+### Usage
 ```js
 var flow = require('flow');
 
@@ -34,7 +34,7 @@ event.on('data', function (chunk) {});
 event.write('chunk');
 event.end('chunk');
 ```
-##### Init handler
+### Init handler
 If a module exports a method named `init`,
 flow will call this method once after the module is loaded
 ```js
@@ -88,10 +88,22 @@ exports.myMethod = function (options, data, next) {
 Config module type and flow events for module instances.
 ```js
 {
+    // define roles. "*" means public
     "roles": {"*": true},
+    
+    // name of the instance. ex. instance/event
     "name": "instance",
+    
+    // npm module name
     "module": "module",
+    
+    // custom instance config -> exports.init (config, ready) {};
     "config": {},
+    
+    // emit events onload
+    "load": ["instance/event"],
+    
+    // flow event listeners
     "flow": {
         "eventName": {
             "d": [
@@ -118,8 +130,7 @@ Config module type and flow events for module instances.
             // this event will be emitted, with the error as data.
             "r": ["instance/onErrorEvent", {"key": "value"}]
         }
-    },
-    "load": ["instance/event"]
+    }
 }
 ```
 If there are no options for a flow handler, the handler path can be just a string.
