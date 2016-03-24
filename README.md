@@ -31,8 +31,8 @@ var event = flow('instance/event', {
 
 event.on('error', console.error.bind(console));
 event.on('data', function (chunk) {});
-event.write('chunk1');
-event.end('chunk2');
+event.write('chunk');
+event.end('chunk');
 ```
 ##### Init handler
 If a module exports a method named `init`,
@@ -65,7 +65,7 @@ exports.myMethod = function (options, stream) {
     event.pipe(writableStream);
     // custom flow events can just be returned
     return event;
-}
+};
 ```
 ### Data handler
 Data handler receive the data chunks, that are send over the stream.
@@ -82,53 +82,47 @@ exports.myMethod = function (options, data, next) {
     
     // Emit en error
     next(new Error('Something bad happend.'));
-}
+};
 ```
 ###Module instance config (MIC)
-Config module type and flow events for module isntances.
-```json
+Config module type and flow events for module instances.
+```js
 {
     "roles": {"*": true},
     "name": "instance",
     "module": "module",
     "config": {},
-    "flow": {},
+    "flow": {
+        "eventName": {
+            "d": [
+                // Data handler: receives data from flow or custom streams.
+                [":instance/method", {"key": "value"}],
+                
+                // "Once" data handler: Like a data handler,
+                // but will be removed after first data chunk is processed.
+                [".instance/method", {"key": "value"}],
+                
+                // Flow emit: write data to event and write event
+                // result data to next data handlers or streams.
+                [">instance/event", {"key": "value"}],
+                
+                // Custom stream: A method that returns a readable,
+                // writable or duplex stream.
+                ["*instance/method", {"key": "value"}]
+            ],
+            
+            // if the flow stream ends, this event will be emitted, no data.
+            "e": ["instance/onEndEvent", {"key": "value"}],
+            
+            // if an error happens somewhere in the flow stream,
+            // this event will be emitted, with the error as data.
+            "r": ["instance/onErrorEvent", {"key": "value"}]
+        }
+    },
     "load": ["instance/event"]
 }
 ```
-
-##### Flow listeners
-Detail flow event listeners config.
-```js
-{
-    "eventName": {
-        "d": [
-            // Data handler: receives data from flow or custom streams.
-            [":instance/method", {"key": "value"}],
-            
-            // "Once" data handler: Like a data handler,
-            // but will be removed after first data chunk is processed.
-            [".instance/method", {"key": "value"}],
-            
-            // Flow emit: write data to event and write event
-            // result data to next data handlers or streams.
-            [">instance/event", {"key": "value"}],
-            
-            // Custom stream: A method that returns a readable,
-            // writable or duplex stream.
-            ["*instance/method", {"key": "value"}]
-        ],
-        
-        // if the flow stream ends, this event will be emitted, no data.
-        "e": ["instance/onEndEvent", {"key": "value"}]
-        
-        // if an error happens somewhere in the flow stream,
-        // this event will be emitted, with the error as data.
-        "r": ["instance/onErrorEvent", {"key": "value"}]
-    ]
-}
-```
-If there are no options for a handler, the handler path can be just a string.
+If there are no options for a flow handler, the handler path can be just a string.
 Also the instance name in a path is optional, if you call a method on the
 module instance, where flow is configured.
 
