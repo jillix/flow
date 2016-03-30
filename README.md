@@ -24,7 +24,7 @@ var event = flow('instance/event', {
     }
 
     // custom reset handler
-    _reset: function () {
+    reset: function () {
         // .. reset stuff, ex. DOM
     }
 });
