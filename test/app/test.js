@@ -11,13 +11,22 @@ var adapter =  {
 };
 var first = true;
 
+function UID (len) {
+    len = len || 23;
+    for (var i = 0, random = ''; i < len; ++i) {
+        random += '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'[0 | Math.random() * 62];
+    }
+    return random;
+};
+
 module.exports = function createTest (event) {
     return function (test) {
+        var chunk = UID();
         var options = {
-            test: test,
-            data: {test: true},
-            options: {test: true},
-            modified: {test: true},
+            tapTest: test,
+            validate: chunk,
+            transform: UID(),
+            streamValidate: 42
         };
 
         if (first) {
@@ -28,22 +37,26 @@ module.exports = function createTest (event) {
 
         var stream = Flow(event, options);
 
-        stream.on('error', function (error) {
-            test.error(error);
+        stream.on('data', function (chunk) {
+            console.log('TEST "' + event + '" Chunk:', chunk);
+
+            // test if data chunk was transformed
+            test.match(chunk, options.validate);
         });
 
-        stream.on('data', function (data) {
-            console.log('User data:', data);
-            test.match(data, options.modified);
-        });
-
-        stream.on('end', function () {
-            console.log('User end: true');
+        stream.on('end', function (chunk) {
+            console.log('TEST "' + event + '" End:', chunk);
             test.end();
         });
 
-        stream.write({test: true});
-        
-        stream.end({test: true});
+        // TODO errors
+        stream.on('error', function (error) {
+            console.log('TEST "' + event + '" Error:', error);
+            //test.error(error);
+        });
+
+        // 2writes + 2test per write = 4 tests
+        stream.write(chunk);
+        stream.end(chunk);
     };
 };

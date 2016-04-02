@@ -3,58 +3,89 @@
     "module": "test",
     "roles": {"*": true},
     "flow": {
-        "data": {
+        "A": {
             "d": [
-                [":data", {"test": true, "id": "1"}],
-                [":data", {"test": true, "id": "2"}],
-                [">end", {"test": true}]
-            ],
-            "e": "end",
-            "r": "error"
-        },
-        "stream": {
-            "d": [
-                ["*node", {"test": true, "flow": "data"}]
+                [":data", {"test": "A", "order": 1, "validate": 42}]
             ]
         },
-        "emit": {
-            "d": [[">emit", {"test": true}]]
+        "Bnr": {
+            "d": [
+                ["*streamNoReturn", {"test": "Bnr", "order": 1, "validate": 42}]
+            ]
         },
-        "end": {
-            "d": [[":data", {"test": true, "id": "3"}]]
+        "Bd": {
+            "d": [
+                ["*streamDuplex", {"test": "Bd", "order": 1, "validate": 42}]
+            ]
         },
-        "error": {
-            "d": [[":error", {"test": true}]]
-        }, 
-        "data_emit_data": {
-            "d": [["", {"test": "true"}]]
+        "Br": {
+            "d": [
+                ["*streamReadable", {"test": "Br", "order": 1, "validate": 42}]
+            ]
         },
-        "data_emit": {
-            "d": [["", {"test": "true"}]]
+        "Bw": {
+            "d": [
+                ["*streamWritable", {"test": "Bw", "order": 1, "validate": 42}]
+            ]
         },
-        "emit_data": {
-            "d": [["", {"test": "true"}]]
+        "C": {
+            "d": [
+                [">A", {"test": "C", "order": 1}]
+            ]
         },
-        "data_stream_data": {
-            "d": [["", {"test": "true"}]]
+        "D": {
+            "d": [
+                [":data", {"test": "D", "order": 1}],
+                [":data", {"test": "D", "order": 2}]
+            ]
         },
-        "data_stream": {
-            "d": [["", {"test": "true"}]]
+        "Ed": {
+            "d": [
+                [":data", {"test": "Ed", "order": 1, "validate": 42}],
+                ["*streamDuplex", {"test": "Ed", "order": 2, "validate": 42}]
+            ]
         },
-        "stream_data": {
-            "d": [["", {"test": "true"}]]
+        "F": {
+            "d": [
+                [":data", {"test": "F", "order": 1}],
+                [">A", {"test": "F", "order": 2}]
+            ]
         },
-        "emit_stream": {
-            "d": [["", {"test": "true"}]]
+        "G": {
+            "d": [
+                ["*stream", {"test": "G", "order": 1}],
+                ["*stream", {"test": "G", "order": 2}]
+            ]
         },
-        "stream_emit": {
-            "d": [["", {"test": "true"}]]
+        "H": {
+            "d": [
+                ["*stream", {"test": "H", "order": 1, "validate": 42}],
+                [":data", {"test": "H", "order": 2}]
+            ]
         },
-        "emit_emit": {
-            "d": [["", {"test": "true"}]]
+        "I": {
+            "d": [
+                ["*stream", {"test": "I", "order": 1, "validate": 42}],
+                [">A", {"test": "I", "order": 2}]
+            ]
         },
-        "stream_stream": {
-            "d": [["", {"test": "true"}]]
+        "J": {
+            "d": [
+                [">A", {"test": "J", "order": 1}],
+                [">A", {"test": "J", "order": 2}]
+            ]
+        },
+        "K": {
+            "d": [
+                [">A", {"test": "K", "order": 1}],
+                [":data", {"test": "K", "order": 2}]
+            ]
+        },
+        "L": {
+            "d": [
+                [">A", {"test": "L", "order": 1}],
+                ["*stream", {"test": "L", "order": 2, "validate": 42}]
+            ]
         }
     }
 }

@@ -1,9 +1,9 @@
 function validateOptions (options) {
-    if (!options || !options.test) {
+    if (!options || !options.tapTest) {
         return new Error('Flow.test: No tap test instance found.');
     }
 
-    if (!options.data || !options.options) {
+    if (!options.validate) {
         return new Error('Flow.test: No test patterns found.');
     }
 }
@@ -17,18 +17,29 @@ exports.data = function (options, data, next) {
     } 
 
     // validate configured options
-    options.test.match(options._, options.options);
+    options.tapTest.match(options._.validate, options.streamValidate);
 
     // validate data chunk
-    options.test.match(data, options.data);
-
-    // modify data chunk
-    data = options.modified;
+    options.tapTest.match(data, options.validate);
 
     next(null, data);
 };
 
-exports.node = function (options) {
+exports.streamDuplex = function (options, stream) {
+    return this.flow('A', options); 
+};
+
+exports.streamWritable = function (options, stream) {
+    // TODO return a writable stream
+    return;
+};
+
+exports.streamReadable = function (options, stream) {
+    // TODO return a readable stream
+    return;
+};
+
+exports.streamNoReturn = function (options, stream) {
 
     // validate call options
     var err = validateOptions(options);
@@ -37,21 +48,7 @@ exports.node = function (options) {
     } 
 
     // validate configured options
-    options.test.match(options._, options.options);
-
-    if (!options._.flow) {
-        return next(new Error('Flow.test.node: No flow event config.'));
-    }
-
-    // TODO http example
-    // stream.pipe(req);
-    // res.pipe(stream);
-
-    // TODO ws example
-    // stream.pipe(ws).pipe(stream)
-
-    var stream = this.flow(options._.flow, options);
-    return stream;
+    options.tapTest.match(options._.validate, options.streamValidate);
 };
 
 exports.end = function (options, data, next) {
