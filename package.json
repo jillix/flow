@@ -27,6 +27,7 @@
     "test": "tap test/*.js"
   },
   "dependencies": {
+    "isstream": "^0.1.2",
     "libobject": "github:jillix/libobject"
   },
   "devDependencies": {
