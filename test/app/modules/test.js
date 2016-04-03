@@ -1,3 +1,9 @@
+var fs = require('fs');
+var path = require('path');
+var zlib = require('zlib');
+var read = path.resolve(__dirname + '/../composition/test.json');
+var write = path.resolve(__dirname + '/test.txt');
+ 
 function validateOptions (options) {
     if (!options || !options.tapTest) {
         return new Error('Flow.test: No tap test instance found.');
@@ -20,23 +26,55 @@ exports.data = function (options, data, next) {
     options.tapTest.match(options._.validate, options.streamValidate);
 
     // validate data chunk
-    options.tapTest.match(data, options.validate);
+    if (typeof data === 'string') {
+        options.tapTest.match(data, options.validate);
+    }
 
     next(null, data);
 };
 
 exports.streamDuplex = function (options, stream) {
-    return this.flow('A', options); 
+
+    // validate call options
+    var err = validateOptions(options);
+    if (err) {
+        return next(err);
+    } 
+
+    // validate configured options
+    options.tapTest.match(options._.validate, options.streamValidate);
+
+    // return a duplex stream
+    return zlib.createGzip();
 };
 
 exports.streamWritable = function (options, stream) {
-    // TODO return a writable stream
-    return;
+
+    // validate call options
+    var err = validateOptions(options);
+    if (err) {
+        return next(err);
+    } 
+
+    // validate configured options
+    options.tapTest.match(options._.validate, options.streamValidate);
+
+    // return a writable stream
+    return fs.createWriteStream(write);
 };
 
 exports.streamReadable = function (options, stream) {
-    // TODO return a readable stream
-    return;
+
+    // validate call options
+    var err = validateOptions(options);
+    if (err) {
+        return next(err);
+    } 
+
+    // validate configured options
+    options.tapTest.match(options._.validate, options.streamValidate);
+
+    return fs.createReadStream(read);
 };
 
 exports.streamNoReturn = function (options, stream) {

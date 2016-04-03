@@ -41,7 +41,9 @@ module.exports = function createTest (event) {
             console.log('TEST "' + event + '" Chunk:', chunk);
 
             // test if data chunk was transformed
-            test.match(chunk, options.validate);
+            if (typeof chunk === 'string') {
+                test.match(chunk, options.validate);
+            }
         });
 
         stream.on('end', function (chunk) {

@@ -42,7 +42,7 @@
         "Ed": {
             "d": [
                 [":data", {"test": "Ed", "order": 1, "validate": 42}],
-                ["*streamDuplex", {"test": "Ed", "order": 2, "validate": 42}]
+                ["*streamWritable", {"test": "Ed", "order": 2, "validate": 42}]
             ]
         },
         "F": {
@@ -53,14 +53,14 @@
         },
         "G": {
             "d": [
-                ["*stream", {"test": "G", "order": 1}],
-                ["*stream", {"test": "G", "order": 2}]
+                ["*streamWritable", {"test": "G", "order": 1, "validate": 42}],
+                ["*streamReadable", {"test": "G", "order": 2, "validate": 42}]
             ]
         },
         "H": {
             "d": [
-                ["*stream", {"test": "H", "order": 1, "validate": 42}],
-                [":data", {"test": "H", "order": 2}]
+                ["*streamReadable", {"test": "H", "order": 1, "validate": 42}],
+                [":data", {"test": "H", "order": 2, "validate": 42}]
             ]
         },
         "I": {
