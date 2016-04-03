@@ -51,20 +51,22 @@ return a duplex/transform or readable stream, which gets piped into the chain.
 exports.myMethod = function (options, stream) {
 
     // read from flow event
-    stream.pipe(fs.createWriteStream('file'));
+    stream.pipe(otherWritableStream);
+    return;
     
-    // write to flow event
+    // ..or, write to flow event (return a readable stream)
+    
+    // Note: A readable stream overwrites the output of the flow event.
+    // Which means that if you call a stream handler, that returns
+    // a readable stream, more then once. Only the chunks of the last
+    // readable stream will be emitted as flow data chunks.
     return fs.createReadStream('file');
     
-    // or return a transform stream
-    return otherTransformStream;
+    // ..or, read from flow event (return a writable stream)
+    return fs.createWriteStream('file');
     
-    // custom flow event emits
-    var event = this.flow('instance/event', {/* options */});
-    // do something with event stream
-    event.pipe(writableStream);
-    // custom flow events can just be returned
-    return event;
+    // ..or, transform flow event data (return a duplex stream)
+    return zlib.createGzip();
 };
 ```
 ### Data handler
