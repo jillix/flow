@@ -59,7 +59,7 @@ exports.streamWritable = function (options, stream) {
     // validate configured options
     options.tapTest.match(options._.validate, options.streamValidate);
 
-    // return a writable stream
+    // pipe to a writable stream
     return fs.createWriteStream(write);
 };
 

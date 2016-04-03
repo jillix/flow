@@ -8,38 +8,56 @@
                 [":data", {"test": "A", "order": 1, "validate": 42}]
             ]
         },
-        "Bnr": {
+        "B_ns": {
             "d": [
                 ["*streamNoReturn", {"test": "Bnr", "order": 1, "validate": 42}]
             ]
         },
-        "Bd": {
+        "B_ds": {
             "d": [
                 ["*streamDuplex", {"test": "Bd", "order": 1, "validate": 42}]
             ]
         },
-        "Br": {
+        "B_rs": {
             "d": [
                 ["*streamReadable", {"test": "Br", "order": 1, "validate": 42}]
             ]
         },
-        "Bw": {
+        "B_ws": {
             "d": [
                 ["*streamWritable", {"test": "Bw", "order": 1, "validate": 42}]
             ]
         },
         "C": {
             "d": [
-                [">A", {"test": "C", "order": 1}]
+                [">A", {"test": "C", "order": 1, "validate": 42}]
             ]
         },
         "D": {
             "d": [
-                [":data", {"test": "D", "order": 1}],
-                [":data", {"test": "D", "order": 2}]
+                [":data", {"test": "D", "order": 1, "validate": 42}],
+                [":data", {"test": "D", "order": 2, "validate": 42}]
             ]
         },
-        "Ed": {
+        "E_ns": {
+            "d": [
+                [":data", {"test": "Ed", "order": 1, "validate": 42}],
+                ["*streamNoReturn", {"test": "Ed", "order": 2, "validate": 42}]
+            ]
+        },
+        "E_ds": {
+            "d": [
+                [":data", {"test": "Ed", "order": 1, "validate": 42}],
+                ["*streamDuplex", {"test": "Ed", "order": 2, "validate": 42}]
+            ]
+        },
+        "E_rs": {
+            "d": [
+                [":data", {"test": "Ed", "order": 1, "validate": 42}],
+                ["*streamReadable", {"test": "Ed", "order": 2, "validate": 42}]
+            ]
+        },
+        "E_ws": {
             "d": [
                 [":data", {"test": "Ed", "order": 1, "validate": 42}],
                 ["*streamWritable", {"test": "Ed", "order": 2, "validate": 42}]
@@ -47,44 +65,116 @@
         },
         "F": {
             "d": [
-                [":data", {"test": "F", "order": 1}],
-                [">A", {"test": "F", "order": 2}]
+                [":data", {"test": "F", "order": 1, "validate": 42}],
+                [">A", {"test": "F", "order": 2, "validate": 42}]
             ]
         },
-        "G": {
+        "G_ns": {
             "d": [
-                ["*streamWritable", {"test": "G", "order": 1, "validate": 42}],
+                ["*streamNoReturn", {"test": "G", "order": 1, "validate": 42}],
+                ["*streamNoReturn", {"test": "G", "order": 2, "validate": 42}]
+            ]
+        },
+        "G_ds": {
+            "d": [
+                ["*streamDuplex", {"test": "G", "order": 1, "validate": 42}],
+                ["*streamDuplex", {"test": "G", "order": 2, "validate": 42}]
+            ]
+        },
+        "G_rs": {
+            "d": [
+                ["*streamReadable", {"test": "G", "order": 1, "validate": 42}],
                 ["*streamReadable", {"test": "G", "order": 2, "validate": 42}]
             ]
         },
-        "H": {
+        "G_ws": {
+            "d": [
+                ["*streamWritable", {"test": "G", "order": 1, "validate": 42}],
+                ["*streamWritable", {"test": "G", "order": 2, "validate": 42}]
+            ]
+        },
+        "H_ns": {
+            "d": [
+                ["*streamNoReturn", {"test": "H", "order": 1, "validate": 42}],
+                [":data", {"test": "H", "order": 2, "validate": 42}]
+            ]
+        },
+        "H_ds": {
+            "d": [
+                ["*streamDuplex", {"test": "H", "order": 1, "validate": 42}],
+                [":data", {"test": "H", "order": 2, "validate": 42}]
+            ]
+        },
+        "H_rs": {
             "d": [
                 ["*streamReadable", {"test": "H", "order": 1, "validate": 42}],
                 [":data", {"test": "H", "order": 2, "validate": 42}]
             ]
         },
-        "I": {
+        "H_ws": {
             "d": [
-                ["*stream", {"test": "I", "order": 1, "validate": 42}],
+                ["*streamWritable", {"test": "H", "order": 1, "validate": 42}],
+                [":data", {"test": "H", "order": 2, "validate": 42}]
+            ]
+        },
+        "I_ns": {
+            "d": [
+                ["*streamNoReturn", {"test": "I", "order": 1, "validate": 42}],
+                [">A", {"test": "I", "order": 2}]
+            ]
+        },
+        "I_ds": {
+            "d": [
+                ["*streamDuplex", {"test": "I", "order": 1, "validate": 42}],
+                [">A", {"test": "I", "order": 2}]
+            ]
+        },
+        "I_rs": {
+            "d": [
+                ["*streamReadable", {"test": "I", "order": 1, "validate": 42}],
+                [">A", {"test": "I", "order": 2}]
+            ]
+        },
+        "I_ws": {
+            "d": [
+                ["*streamWritable", {"test": "I", "order": 1, "validate": 42}],
                 [">A", {"test": "I", "order": 2}]
             ]
         },
         "J": {
             "d": [
-                [">A", {"test": "J", "order": 1}],
-                [">A", {"test": "J", "order": 2}]
+                [">A", {"test": "J", "order": 1, "validate": 42}],
+                [">A", {"test": "J", "order": 2, "validate": 42}]
             ]
         },
         "K": {
             "d": [
-                [">A", {"test": "K", "order": 1}],
-                [":data", {"test": "K", "order": 2}]
+                [">A", {"test": "K", "order": 1, "validate": 42}],
+                [":data", {"test": "K", "order": 2, "validate": 42}]
             ]
         },
-        "L": {
+        "L_ns": {
             "d": [
-                [">A", {"test": "L", "order": 1}],
-                ["*stream", {"test": "L", "order": 2, "validate": 42}]
+                [">A", {"test": "L", "order": 1, "validate": 42}],
+                ["*streamNoReturn", {"test": "L", "order": 2, "validate": 42}]
+            ]
+        },
+        "L_ds": {
+            "d": [
+                [">A", {"test": "L", "order": 1, "validate": 42}],
+                ["*streamDuplex", {"test": "L", "order": 2, "validate": 42}]
+            ]
+        },
+        "L_rs": {
+            "d": [
+                [">A", {"test": "L", "order": 1, "validate": 42}],
+                ["*streamReadable", {"test": "L", "order": 2, "validate": 42}]
+            ]
+        },
+        "L_ws": {
+            "d": [
+                [">A", {"test": "L", "order": 1, "validate": 42}],
+                ["*streamWritable", {"test": "L", "order": 2, "validate": 42}]
             ]
         }
     }
