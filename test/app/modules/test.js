@@ -94,7 +94,7 @@ exports.end = function (options, data, next) {
     next(null, data);
 };
 
+var count = 0;
 exports.error = function (options, data, next) {
-    console.log('Error:', data);
-    next(null, data);
+    next(new Error(++count + ': Ups! ' + data));
 };

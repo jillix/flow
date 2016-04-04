@@ -46,12 +46,11 @@ module.exports = function createTest (event) {
             }
         });
 
-        stream.on('end', function (chunk) {
-            console.log('TEST "' + event + '" End:', chunk);
+        stream.on('end', function () {
+            console.log('TEST "' + event + '" End.');
             test.end();
         });
 
-        // TODO errors
         stream.on('error', function (error) {
             console.log('TEST "' + event + '" Error:', error);
             //test.error(error);

@@ -1,0 +1,23 @@
+{
+    "name": "error_end",
+    "roles": {"*": true},
+    "module": "test",
+    "flow": {
+        "niceError": {
+            "d": [
+                [":data", {"validate": 42}]
+            ]
+        },
+        "endEvent": {
+            "d": [
+                [":data", {"validate": 42}]
+            ]
+        },
+        "rA": {
+            "d": [
+                [":error", {"test": "A"}]
+            ],
+            "e": "endEvent"
+        }
+    }
+}
