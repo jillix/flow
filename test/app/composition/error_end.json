@@ -15,9 +15,9 @@
         },
         "rA": {
             "d": [
-                [":error", {"test": "A"}]
+                [":error", {"test": "A", "validate": 42}]
             ],
-            "e": "endEvent"
+            "r": "endEvent"
         }
     }
 }
