@@ -126,11 +126,11 @@ Config module type and flow events for module instances.
             ],
             
             // if the flow stream ends, this event will be emitted, no data.
-            "e": ["instance/onEndEvent", {"key": "value"}],
+            "e": "instance/onEndEvent",
             
             // if an error happens somewhere in the flow stream,
             // this event will be emitted, with the error as data.
-            "r": ["instance/onErrorEvent", {"key": "value"}]
+            "r": "instance/onErrorEvent"
         }
     }
 }
