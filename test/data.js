@@ -26,6 +26,7 @@ tap.test('Test I_ds', test('test/I_ds'));
 tap.test('Test I_rs', test('test/I_rs'));
 tap.test('Test I_ws', test('test/I_ws'));
 tap.test('Test J', test('test/J'));
+tap.test('Test J_', test('test/J_'));
 tap.test('Test K', test('test/K'));
 tap.test('Test L_ns', test('test/L_ns'));
 tap.test('Test L_ds', test('test/L_ds'));

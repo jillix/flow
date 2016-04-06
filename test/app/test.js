@@ -21,6 +21,7 @@ function UID (len) {
 
 module.exports = function createTest (event) {
     return function (test) {
+    //process.nextTick(function () {
         var chunk = UID();
         var options = {
             tapTest: test,
@@ -38,7 +39,7 @@ module.exports = function createTest (event) {
         var stream = Flow(event, options);
 
         stream.on('data', function (chunk) {
-            //console.log('TEST "' + event + '" Chunk:', chunk);
+            console.log('TEST "' + event + '" Chunk:', chunk);
 
             // test if data chunk was transformed
             if (typeof chunk === 'string') {
@@ -47,17 +48,18 @@ module.exports = function createTest (event) {
         });
 
         stream.on('end', function () {
-            //console.log('TEST "' + event + '" End.');
+            console.log('TEST "' + event + '" End.');
             test.end();
         });
 
         stream.on('error', function (error) {
-            //console.log('TEST "' + event + '" Error:', error);
+            console.log('TEST "' + event + '" Error:', error);
             test.error(error);
         });
 
         // 2writes + 2test per write = 4 tests
         stream.write(chunk);
         stream.end(chunk);
+    //});
     };
 };

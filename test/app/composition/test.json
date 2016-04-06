@@ -8,6 +8,11 @@
                 [":data", {"test": "A", "order": 1, "validate": 42}]
             ]
         },
+        "_A": {
+            "d": [
+                [":data", {"test": "_A", "order": 1, "validate": 42}]
+            ]
+        },
         "B_ns": {
             "d": [
                 ["*streamNoReturn", {"test": "Bnr", "order": 1, "validate": 42}]
@@ -145,6 +150,12 @@
             "d": [
                 [">A", {"test": "J", "order": 1, "validate": 42}],
                 [">A", {"test": "J", "order": 2, "validate": 42}]
+            ]
+        },
+        "J_": {
+            "d": [
+                [">A", {"test": "J", "order": 1, "validate": 42}],
+                [">_A", {"test": "J", "order": 2, "validate": 42}]
             ]
         },
         "K": {
