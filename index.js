@@ -30,6 +30,7 @@ function init (options) {
         mic: options.mic,
         mod: options.mod,
         cache: options.cache || {},
+        streams: options.cache || {},
         reset: function () {
             if (typeof options.reset === 'function') {
                 options.reset.call(this);
@@ -73,12 +74,19 @@ function Flow (event, options, callback) {
         throw new Error('Flow: Emit without instance or event name.');
     }
 
+    // return cached streams
+    var stream, key = event[0] + event[1];
+    if (scope.streams[key]) {
+        return scope.streams[key];
+    }
+
     if (typeof options === 'function') {
         callback = options;
         options = {};
     }
 
-    var stream = Link(scope, event, options);
+    stream = Link(scope, key, event, options);
+    scope.streams[key] = stream;
 
     // flow callback
     if (typeof callback === 'function') {
