@@ -1,4 +1,7 @@
-var Link = require('./lib/link');
+var Node = require('./lib/node');
+var Load = require('./lib/load');
+var Parse = require('./lib/parse');
+
 var scope;
 
 module.exports = Flow;
@@ -85,7 +88,14 @@ function Flow (event, options, callback) {
         options = {};
     }
 
-    stream = Link(scope, key, event, options);
+    //stream = Link(scope, key, event, options);
+    stream = Node(scope, key);
+
+    // load instance, parse event and get flow stream sequences
+    Load(scope, stream, event[0], options, function (instance) {
+        Parse(scope, stream, instance, event[1], options, stream.link.bind(stream, options, instance));
+    });
+
     scope.streams[key] = stream;
 
     // flow callback
