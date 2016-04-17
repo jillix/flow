@@ -1,3 +1,4 @@
+var EventEmitter = require('events');
 var Node = require('./lib/node');
 var Load = require('./lib/load');
 var Parse = require('./lib/parse');
@@ -32,7 +33,9 @@ function init (options) {
         flow: Flow,
         mic: options.mic,
         mod: options.mod,
+        modules: options.modules || {},
         cache: options.cache || {},
+        events: options.events || {},
         streams: options.cache || {},
         reset: function () {
             if (typeof options.reset === 'function') {
@@ -48,15 +51,23 @@ function init (options) {
 
             return [inst, path];
         },
-        get: function (item, emitter, cb) {
+        get: function (cache, key, emitter, cb) {
+
+            var item = cache[key];
+            var newItem;
+            if (!item) {
+                newItem = true;
+                item = cache[key] = new EventEmitter();
+            }
 
             if (item.ready) {
                 cb && process.nextTick(cb.bind(emitter, item));
-                return true;
+            } else {
+                cb && item.once('ready', cb.bind(emitter));
+                item.once('error', console.error.bind(console, 'Flow.get:'));
             }
 
-            cb && item.once('ready', cb.bind(emitter, item));
-            item.once('error', console.error.bind(console, 'Flow.get:'));
+            return !!newItem;
         }
 
     };
@@ -91,10 +102,8 @@ function Flow (event, options, callback) {
     //stream = Link(scope, key, event, options);
     stream = Node(scope, key);
 
-    // load instance, parse event and get flow stream sequences
-    Load(scope, stream, event[0], options, function (instance) {
-        Parse(scope, stream, instance, event[1], options, stream.link.bind(stream, options, instance));
-    });
+    // parse event and setup streams
+    Parse(scope, stream, key, event[0], event[1], options, stream.link.bind(stream, options));
 
     scope.streams[key] = stream;
 
