@@ -1,28 +1,11 @@
 var EventEmitter = require('events');
 var Node = require('./lib/node');
 var Load = require('./lib/load');
-var Parse = require('./lib/parse');
-
+var Setup = require('./lib/parse');
 var scope;
 
 module.exports = Flow;
 
-/* Cache data structure: {
-    instance: {
-        inst: {}, 
-        ready: true,
-        parsed: {
-            event: {
-                d: [
-                    [sequence]
-                ],
-                e: ["instance/end", {}],
-                r: ["instance/error", {}],
-                s: []
-            }
-        }
-    }
-}*/
 function init (options) {
 
     if (!options.mic || !options.mod) {
@@ -34,7 +17,7 @@ function init (options) {
         mic: options.mic,
         mod: options.mod,
         modules: options.modules || {},
-        cache: options.cache || {},
+        instances: options.instances || {},
         events: options.events || {},
         streams: options.cache || {},
         reset: function () {
@@ -45,11 +28,13 @@ function init (options) {
         },
         path: function parsePath (path, inst) {
 
+            var event = [inst, path];
             if (path.indexOf('/') > 0) {
-                return path.split('/');
+                event = path.split('/');
             }
 
-            return [inst, path];
+            event[2] = event[0] + event[1];
+            return event;
         },
         get: function (cache, key, emitter, cb) {
 
@@ -61,9 +46,9 @@ function init (options) {
             }
 
             if (item.ready) {
-                cb && process.nextTick(cb.bind(emitter, item));
+                process.nextTick(cb.bind(emitter, item));
             } else {
-                cb && item.once('ready', cb.bind(emitter));
+                item.once('ready', cb.bind(emitter));
                 item.once('error', console.error.bind(console, 'Flow.get:'));
             }
 
@@ -89,9 +74,9 @@ function Flow (event, options, callback) {
     }
 
     // return cached streams
-    var stream, key = event[0] + event[1];
-    if (scope.streams[key]) {
-        return scope.streams[key];
+    var stream;
+    if (scope.streams[event[2]]) {
+        return scope.streams[event[2]];
     }
 
     if (typeof options === 'function') {
@@ -100,12 +85,12 @@ function Flow (event, options, callback) {
     }
 
     //stream = Link(scope, key, event, options);
-    stream = Node(scope, key);
+    stream = Node(scope, event[2]);
 
     // parse event and setup streams
-    Parse(scope, stream, key, event[0], event[1], options, stream.link.bind(stream, options));
+    Setup(scope, stream, event, options);
 
-    scope.streams[key] = stream;
+    scope.streams[event[2]] = stream;
 
     // flow callback
     if (typeof callback === 'function') {
