@@ -84,7 +84,6 @@ function Flow (event, options, callback) {
         options = {};
     }
 
-    //stream = Link(scope, key, event, options);
     stream = Node(scope, event[2]);
 
     // parse event and setup streams
