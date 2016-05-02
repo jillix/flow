@@ -54,7 +54,6 @@ function init (options) {
 
             return !!newItem;
         }
-
     };
 }
 
