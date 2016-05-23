@@ -44,6 +44,22 @@ exports.init = function (config, ready) {
     ready(new Error('Init error'));
 };
 ```
+### Data handler
+Data handler receive the data chunks, that are send over the stream.
+Data handlers are ment to transform the chunks and pass it down the line.
+```js
+exports.myMethod = function (options, data, next, stream) {
+    
+    // Push data to next handler (you have to call "next()", to signal that the handler is done).
+    stream.push(data);
+    
+    // Pass transformed data to the next data handler.
+    next(null, data);
+    
+    // Emit en error
+    next(new Error('Something bad happend.'));
+};
+```
 ### Stream handler
 Stream handler receive the previous stream in the the event chain and can also
 return a duplex/transform or readable stream, which gets piped into the chain.
@@ -67,23 +83,6 @@ exports.myMethod = function (options, stream) {
     
     // ..or, transform flow event data (return a duplex stream)
     return zlib.createGzip();
-};
-```
-### Data handler
-Data handler receive the data chunks, that are send over the stream.
-Data handlers are ment to transform the chunks and pass it down the line.
-```js
-exports.myMethod = function (options, data, next) {
-    
-    // Push data to response (readable), without calling the next data handler.
-    // Note, that you have to call next again, to signal that the handler is done.
-    next(data, true);
-    
-    // Pass transformed data to the next data handler.
-    next(null, data);
-    
-    // Emit en error
-    next(new Error('Something bad happend.'));
 };
 ```
 ###Module instance config (MIC)
