@@ -1,7 +1,7 @@
-var EventEmitter = require('events');
-var Node = require('./lib/node');
-var Load = require('./lib/load');
-var Setup = require('./lib/parse');
+const EventEmitter = require('events');
+const Node = require('./lib/node');
+const Load = require('./lib/load');
+const Setup = require('./lib/parse');
 var scope;
 
 module.exports = Flow;
@@ -20,15 +20,15 @@ function init (options) {
         instances: options.instances || {},
         events: options.events || {},
         streams: options.cache || {},
-        reset: function () {
+        reset: () => {
             if (typeof options.reset === 'function') {
                 options.reset.call(this);
             }
             this.cache = {};
         },
-        path: function parsePath (path, inst) {
+        path: (path, inst) => {
 
-            var event = [inst, path];
+            let event = [inst, path];
             if (path.indexOf('/') > 0) {
                 event = path.split('/');
             }
@@ -36,10 +36,10 @@ function init (options) {
             event[2] = event[0] + event[1];
             return event;
         },
-        get: function (cache, key, emitter, cb) {
+        get: (cache, key, emitter, cb) => {
 
-            var item = cache[key];
-            var newItem;
+            let item = cache[key];
+            let newItem;
             if (!item) {
                 newItem = true;
                 item = cache[key] = new EventEmitter();
@@ -74,7 +74,7 @@ function Flow (event, options, callback) {
     }
 
     // return cached streams
-    var stream;
+    let stream;
     if (scope.streams[event[2]]) {
         return scope.streams[event[2]];
     }
@@ -101,17 +101,17 @@ function Flow (event, options, callback) {
 
 // TODO concat buffers
 function concatStream (stream, callback) {
-    var body = '';
-    var error;
+    let body = '';
+    let error;
 
-    stream.on('data', function (chunk) {
+    stream.on('data', (chunk) => {
         body += chunk;
     })
-    .on('error', function (err) {
+    .on('error', (err) => {
         error = err;
         body = undefined;
     })
-    .on('end', function () {
+    .on('end', () => {
         callback(error, body);
     });
 }
