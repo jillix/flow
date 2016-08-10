@@ -9,7 +9,7 @@ module.exports = Flow;
 function init (options) {
 
     if (!options.mic || !options.mod) {
-        throw new Error('Flow: No module or composition mehtods found.');
+        throw new Error('Flow: No Module or MIC adapter found.');
     }
 
     scope = {
@@ -63,6 +63,7 @@ function Flow (event, options, callback) {
     // init flow on first call
     if (!scope) {
         init(options);
+        delete options.mic, options.mod, options.reset;
     }
 
     event = scope.path(event, this && this._name);
