@@ -1,6 +1,5 @@
 const EventEmitter = require('events');
 const Node = require('./lib/node');
-const Load = require('./lib/load');
 const Setup = require('./lib/parse');
 var scope;
 
