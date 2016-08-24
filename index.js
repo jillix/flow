@@ -42,13 +42,13 @@ function init (options) {
             if (!item) {
                 newItem = true;
                 item = cache[key] = new EventEmitter();
+                item.on('error', console.error.bind(console));
             }
 
             if (item.ready) {
                 process.nextTick(cb.bind(emitter, item));
             } else {
                 item.once('ready', cb.bind(emitter));
-                item.once('error', console.error.bind(console, 'Flow.get:'));
             }
 
             return !!newItem;
