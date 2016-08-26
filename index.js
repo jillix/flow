@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
 const Node = require('./lib/node');
-const Setup = require('./lib/parse');
+const Load = require('./lib/load');
 
 module.exports = (options) => {
 
@@ -63,8 +63,8 @@ function Flow (scope, instance, event, options) {
 
     stream = Node(scope, event_id);
 
-    // parse event and setup streams
-    Setup(scope, stream, instance, event, event_id, options || {});
+    // load event and setup streams
+    Load(scope, stream, instance, event, event_id, options || {});
 
     scope.streams[event_id] = stream;
 
