@@ -1,19 +1,16 @@
 const EventEmitter = require('events');
 const Node = require('./lib/node');
 const Setup = require('./lib/parse');
-var scope;
 
-module.exports = Flow;
+module.exports = (options) => {
 
-function init (options) {
-
-    if (!options.mic || !options.mod) {
+    if (!options.read || !options.mod) {
         throw new Error('Flow: No Module or MIC adapter found.');
     }
 
-    scope = {
-        flow: Flow,
-        mic: options.mic,
+    let scope = {
+        env: options.env,
+        read: options.read,
         mod: options.mod,
         modules: options.modules || {},
         instances: options.instances || {},
@@ -25,16 +22,16 @@ function init (options) {
             }
             this.cache = {};
         },
-        path: (path, inst) => {
+        /*path: (path, inst) => {
 
             let event = [inst, path];
             if (path.indexOf('/') > 0) {
                 event = path.split('/');
             }
 
-            event[2] = event[0] + event[1];
+            event_id = event[0] + event[1];
             return event;
-        },
+        },*/
         get: (cache, key, emitter, cb) => {
 
             let item = cache[key];
@@ -54,28 +51,25 @@ function init (options) {
             return !!newItem;
         }
     };
-}
 
-function Flow (event, options, callback) {
+    scope.flow = Flow.bind(null, scope);
+    return scope.flow;
+};
+
+function Flow (scope, instance, event, options, callback) {
     options = options || {};
 
-    // init flow on first call
-    if (!scope) {
-        init(options);
-        delete options.mic, options.mod, options.reset;
-    }
-
-    event = scope.path(event, this && this._name);
-
     // return if event name is missing
-    if (!event[0] || !event[1]) {
+    if (!instance || !event) {
         throw new Error('Flow: Emit without instance or event name.');
     }
 
+    let event_id = instance + event;//scope.path(event, instance);
+
     // return cached streams
     let stream;
-    if (scope.streams[event[2]]) {
-        return scope.streams[event[2]];
+    if (scope.streams[event_id]) {
+        return scope.streams[event_id];
     }
 
     if (typeof options === 'function') {
@@ -83,12 +77,12 @@ function Flow (event, options, callback) {
         options = {};
     }
 
-    stream = Node(scope, event[2]);
+    stream = Node(scope, event_id);
 
     // parse event and setup streams
-    Setup(scope, stream, event, options);
+    Setup(scope, stream, instance, event, event_id, options);
 
-    scope.streams[event[2]] = stream;
+    scope.streams[event_id] = stream;
 
     // flow callback
     if (typeof callback === 'function') {
