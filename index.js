@@ -47,7 +47,6 @@ module.exports = (options) => {
 };
 
 function Flow (scope, instance, event, options) {
-    options = options || {};
 
     // return if event name is missing
     if (!instance || !event) {
@@ -65,7 +64,7 @@ function Flow (scope, instance, event, options) {
     stream = Node(scope, event_id);
 
     // parse event and setup streams
-    Setup(scope, stream, instance, event, event_id, options);
+    Setup(scope, stream, instance, event, event_id, options || {});
 
     scope.streams[event_id] = stream;
 
