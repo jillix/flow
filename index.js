@@ -22,16 +22,6 @@ module.exports = (options) => {
             }
             this.cache = {};
         },
-        /*path: (path, inst) => {
-
-            let event = [inst, path];
-            if (path.indexOf('/') > 0) {
-                event = path.split('/');
-            }
-
-            event_id = event[0] + event[1];
-            return event;
-        },*/
         get: (cache, key, emitter, cb) => {
 
             let item = cache[key];
@@ -56,7 +46,7 @@ module.exports = (options) => {
     return scope.flow;
 };
 
-function Flow (scope, instance, event, options, callback) {
+function Flow (scope, instance, event, options) {
     options = options || {};
 
     // return if event name is missing
@@ -64,17 +54,12 @@ function Flow (scope, instance, event, options, callback) {
         throw new Error('Flow: Emit without instance or event name.');
     }
 
-    let event_id = instance + event;//scope.path(event, instance);
+    let event_id = instance + event;
 
     // return cached streams
     let stream;
     if (scope.streams[event_id]) {
         return scope.streams[event_id];
-    }
-
-    if (typeof options === 'function') {
-        callback = options;
-        options = {};
     }
 
     stream = Node(scope, event_id);
@@ -84,27 +69,5 @@ function Flow (scope, instance, event, options, callback) {
 
     scope.streams[event_id] = stream;
 
-    // flow callback
-    if (typeof callback === 'function') {
-        concatStream(stream, callback);
-    }
-
     return stream;
-}
-
-// TODO concat buffers
-function concatStream (stream, callback) {
-    let body = '';
-    let error;
-
-    stream.on('data', (chunk) => {
-        body += chunk;
-    })
-    .on('error', (err) => {
-        error = err;
-        body = undefined;
-    })
-    .on('end', () => {
-        callback(error, body);
-    });
 }
