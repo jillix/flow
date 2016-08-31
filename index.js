@@ -1,52 +1,56 @@
+'use strict'
+
 const EventEmitter = require('events');
 const Node = require('./lib/node');
 const Load = require('./lib/load');
 
-module.exports = (options) => {
+module.exports = (adapter) => {
 
-    if (!options.read || !options.mod) {
+    if (!adapter.read || !adapter.mod) {
         throw new Error('Flow: No Module or MIC adapter found.');
     }
 
     let scope = {
-        env: options.env,
-        read: options.read,
-        mod: options.mod,
-        modules: options.modules || {},
-        instances: options.instances || {},
-        events: options.events || {},
-        streams: options.cache || {},
-        reset: () => {
-            if (typeof options.reset === 'function') {
-                options.reset.call(this);
-            }
-            this.cache = {};
-        },
-        get: (cache, key, emitter, cb) => {
+        env: adapter.env,
+        read: adapter.read,
+        mod: adapter.mod,
+        cache: adapter.cache
+    };
 
-            let item = cache[key];
-            let newItem;
-            if (!item) {
-                newItem = true;
-                item = cache[key] = new EventEmitter();
-                item.on('error', console.error.bind(console));
-            }
+    scope.get = (key, emitter, cb) => {
 
-            if (item.ready) {
-                process.nextTick(cb.bind(emitter, item));
-            } else {
-                item.once('ready', cb.bind(emitter));
-            }
-
-            return !!newItem;
+        let item = scope.cache.get(key);
+        let newItem;
+        if (!item) {
+            newItem = true;
+            item = new EventEmitter();
+            scope.cache.set(key, item);
+            item.on('error', console.error.bind(console));
         }
+
+        if (item.ready) {
+            process.nextTick(cb.bind(emitter, item));
+        } else {
+            item.once('ready', cb.bind(emitter));
+        }
+
+        return !!newItem;
+    };
+
+    // reset cache
+    scope.reset = () => {
+        if (typeof adapter.reset === 'function') {
+            adapter.reset.call(scope);
+        }
+
+        scope.cache.reset();
     };
 
     scope.flow = Flow.bind(null, scope);
     return scope.flow;
 };
 
-function Flow (scope, instance, event, options) {
+function Flow (scope, instance, event, args) {
 
     // return if event name is missing
     if (!instance || !event) {
@@ -56,17 +60,18 @@ function Flow (scope, instance, event, options) {
     let event_id = instance + event;
 
     // return cached streams
-    let stream;
-    if (scope.streams[event_id]) {
-        return scope.streams[event_id];
+    let stream = scope.cache.get('s:' + event_id);
+    if (stream) {
+        return stream;
     }
 
     stream = Node(scope, event_id);
 
     // load event and setup streams
-    Load(scope, stream, instance, event, event_id, options || {});
+    Load(scope, stream, instance, event, event_id, args || {});
 
-    scope.streams[event_id] = stream;
+    // save stream in cache
+    scope.cache.set('s:' + event_id, stream);
 
     return stream;
 }
