@@ -1,9 +1,9 @@
 'use strict'
 
-const EventEmitter = require('events');
 const Node = require('./lib/node');
-const Load = require('./lib/load');
+const Loader = require('./lib/load');
 
+// factory
 module.exports = (adapter) => {
 
     if (!adapter.read || !adapter.mod) {
@@ -12,33 +12,16 @@ module.exports = (adapter) => {
 
     let scope = {
         env: adapter.env,
-        read: adapter.read,
         mod: adapter.mod,
+        read: adapter.read,
+
+        // cache must have "get", "set" and "reset" methods
         cache: adapter.cache
-    };
-
-    scope.get = (key, emitter, cb) => {
-
-        let item = scope.cache.get(key);
-        let newItem;
-        if (!item) {
-            newItem = true;
-            item = new EventEmitter();
-            scope.cache.set(key, item);
-            item.on('error', console.error.bind(console));
-        }
-
-        if (item.ready) {
-            process.nextTick(cb.bind(emitter, item));
-        } else {
-            item.once('ready', cb.bind(emitter));
-        }
-
-        return !!newItem;
-    };
+    }; 
 
     // reset cache
     scope.reset = () => {
+
         if (typeof adapter.reset === 'function') {
             adapter.reset.call(scope);
         }
@@ -60,18 +43,29 @@ function Flow (scope, instance, event, args) {
     let event_id = instance + event;
 
     // return cached streams
-    let stream = scope.cache.get('s:' + event_id);
-    if (stream) {
-        return stream;
+    let node = scope.cache.get('s:' + event_id);
+    if (node) {
+        return node;
     }
 
-    stream = Node(scope, event_id);
+    node = Node(scope, event_id);
+    args = args || {};
 
-    // load event and setup streams
-    Load(scope, stream, instance, event, event_id, args || {});
+    // handle cached event
+    let parsed_event = scope.cache.get('l:' + event_id);
+    if (parsed_event) { 
+        process.nextTick(node.link.bind(node, args, parsed_event));
+    } else {
+
+        // get cached instance or the name
+        instance = scope.cache.get('i:' + instance) || instance;
+
+        // pipe triple stream to loader
+        scope.read(instance, event, args).pipe(Loader(scope, node));
+    }
 
     // save stream in cache
-    scope.cache.set('s:' + event_id, stream);
+    scope.cache.set('s:' + event_id, node);
 
-    return stream;
+    return node;
 }
