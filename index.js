@@ -43,6 +43,7 @@ function Flow (scope, instance, event, args) {
     let event_id = instance + event;
 
     // return cached streams
+    // TODO args for cached nodes??
     let node = scope.cache.get('s:' + event_id);
     if (node) {
         return node;
@@ -61,7 +62,7 @@ function Flow (scope, instance, event, args) {
         instance = scope.cache.get('i:' + instance) || instance;
 
         // pipe triple stream to loader
-        scope.read(instance, event, args).pipe(Loader(scope, node));
+        scope.read(instance, event, args).pipe(Loader(scope, node, args));
     }
 
     // save stream in cache
