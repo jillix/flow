@@ -10,27 +10,28 @@ module.exports = (adapter) => {
         throw new Error('Flow: No Module or MIC adapter found.');
     }
 
-    let scope = {
+    const scope = {
         env: adapter.env,
         mod: adapter.mod,
         read: adapter.read,
 
         // cache must have "get", "set" and "reset" methods
-        cache: adapter.cache
+        cache: adapter.cache,
+
+        // reset cache
+        reset: () => {
+
+            if (typeof adapter.reset === 'function') {
+                adapter.reset();
+            }
+
+            adapter.cache.reset();
+        }
     }; 
 
-    // reset cache
-    scope.reset = () => {
-
-        if (typeof adapter.reset === 'function') {
-            adapter.reset.call(scope);
-        }
-
-        scope.cache.reset();
+    return (instance, event, args) => {
+        return Flow(scope, instance, event, args)
     };
-
-    scope.flow = Flow.bind(null, scope);
-    return scope.flow;
 };
 
 function Flow (scope, instance, event, args) {
@@ -55,7 +56,7 @@ function Flow (scope, instance, event, args) {
     // handle cached event
     let parsed_event = scope.cache.get('l:' + event_id);
     if (parsed_event) { 
-        process.nextTick(node.link.bind(node, args, parsed_event));
+        process.nextTick(() => node.link(args, parsed_event));
     } else {
 
         // get cached instance or the name
