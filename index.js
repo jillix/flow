@@ -29,45 +29,42 @@ module.exports = (adapter) => {
         }
     }; 
 
-    return (instance, event, args) => {
-        return Flow(scope, instance, event, args)
+    return (event, args) => {
+        return Flow(scope, event, args)
     };
 };
 
-function Flow (scope, instance, event, args) {
+function Flow (scope, event, args) {
 
     // return if event name is missing
-    if (!instance || !event) {
-        throw new Error('Flow: Emit without instance or event name.');
+    if (!event) {
+        throw new Error('Flow: Empty event.');
     }
-
-    let event_id = instance + event;
 
     // return cached streams
     // TODO args for cached nodes??
-    let node = scope.cache.get('s:' + event_id);
+    let node = scope.cache.get('s:' + event);
     if (node) {
         return node;
     }
 
-    node = Node(scope, event_id);
+    node = Node(scope, event);
     args = args || {};
 
     // handle cached event
-    let parsed_event = scope.cache.get('l:' + event_id);
+    let parsed_event = scope.cache.get('l:' + event);
     if (parsed_event) { 
-        process.nextTick(() => node.link(args, parsed_event));
+        process.nextTick(() => {
+            node.link(args, parsed_event);
+        });
+
+    // pipe triple stream to loader
     } else {
-
-        // get cached instance or the name
-        instance = scope.cache.get('i:' + instance) || instance;
-
-        // pipe triple stream to loader
-        scope.read(instance, event, args).pipe(Loader(scope, node, args));
+        scope.read(event, args).pipe(Loader(scope, node, args));
     }
 
     // save stream in cache
-    scope.cache.set('s:' + event_id, node);
+    scope.cache.set('s:' + event, node);
 
     return node;
 }
