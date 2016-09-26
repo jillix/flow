@@ -34,7 +34,7 @@ module.exports = (adapter) => {
     };
 };
 
-function Flow (scope, event, args) {
+function Flow (scope, event, args = {}) {
 
     // return if event name is missing
     if (!event) {
@@ -43,20 +43,19 @@ function Flow (scope, event, args) {
 
     // return cached streams
     // TODO args for cached nodes??
+    // TODO check if it's better, if the modules handles
+    //      the reuse of streams?
     let node = scope.cache.get('s:' + event);
     if (node) {
         return node;
     }
 
-    node = Node(scope, event);
-    args = args || {};
+    node = Node(scope, event, args);
 
     // handle cached event
     let parsed_event = scope.cache.get('l:' + event);
     if (parsed_event) { 
-        process.nextTick(() => {
-            node.link(args, parsed_event);
-        });
+        process.nextTick(() => node.link(args, parsed_event));
 
     // pipe triple stream to loader
     } else {
