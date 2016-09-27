@@ -1,7 +1,7 @@
 'use strict'
 
-const Node = require('./lib/node');
-const Loader = require('./lib/load');
+const Node = require('./lib/Node');
+const Loader = require('./lib/Loader');
 
 // factory
 module.exports = (adapter) => {
