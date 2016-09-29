@@ -26,9 +26,9 @@ module.exports = (adapter) => {
 
             adapter.cache.reset();
         }
-    }; 
+    };
 
-    return (event, args) => {
+    return scope.flow = (event, args) => {
         return Stream(scope, event, args)
     };
 };
