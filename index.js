@@ -28,7 +28,7 @@ module.exports = (adapter) => {
         }
     };
 
-    return scope.flow = (event, args) => {
-        return Stream(scope, event, args)
+    return scope.flow = (event, options) => {
+        return Stream(scope, event, options);
     };
 };
