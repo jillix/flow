@@ -3,10 +3,10 @@
 const Stream = require('./lib/Stream');
 
 // factory
-module.exports = (adapter) => {
+module.exports = adapter => {
 
     if (!adapter.read || !adapter.mod) {
-        throw new Error('Flow: No Module or MIC adapter found.');
+        throw new Error('Flow: No "mod" or "read" methods on adapter.');
     }
 
     const scope = {
