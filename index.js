@@ -3,14 +3,14 @@
 const Stream = require('./lib/Stream');
 
 // factory
-module.exports = adapter => {
+module.exports = (env, adapter) => {
 
     if (!adapter.read || !adapter.mod) {
         throw new Error('Flow: No "mod" or "read" methods on adapter.');
     }
 
     const scope = {
-        env: adapter.env,
+        env: env || {},
         mod: adapter.mod,
         read: adapter.read,
 
