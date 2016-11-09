@@ -1,26 +1,24 @@
-'use strict'
+"use strict"
 
-const Stream = require('./lib/Stream');
+// Polyfill for setImmediate, extends the global scope.
+require("setimmediate");
 
-// factory
+const Stream = require("./lib/Stream");
+
 module.exports = (env, adapter) => {
 
-    if (!adapter.read || !adapter.mod) {
-        throw new Error('Flow: No "mod" or "read" methods on adapter.');
+    if (!adapter.cache || !adapter.read || !adapter.mod) {
+        throw new Error("Flow: Invalid adapter.");
     }
 
     const scope = {
         env: env || {},
         mod: adapter.mod,
         read: adapter.read,
-
-        // cache must have "get", "set" and "reset" methods
         cache: adapter.cache,
-
-        // reset cache
         reset: () => {
 
-            if (typeof adapter.reset === 'function') {
+            if (typeof adapter.reset === "function") {
                 adapter.reset();
             }
 
