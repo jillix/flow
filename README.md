@@ -6,11 +6,17 @@ With NPM: `npm install jillix/flow`.
 
 ### Usage
 ```js
-var flow = require('flow');
+cosnt Flow = require('flow');
 
-// emit first flow event with adapter functions
-var event = flow('instance/event', {
+// Initialize flow with adapter object
+const flow = Flow({
 
+    cache: {
+        get: (key) => {},
+        set: (key, value) => {},
+        del: (key) => {}
+    },
+    
     // this method must return a CommonJs exports object.
     mod: function (name, callback) {
         // .. get the module, ex. require(name)
@@ -18,9 +24,8 @@ var event = flow('instance/event', {
     },
 
     // return a flow module instance composition (mic)
-    mic: function (name, callback) {
-        // .. get the config
-        callback(null, config);
+    read: function (name) {
+        // .. return a triple stream of a event
     }
 
     // custom reset handler
@@ -29,26 +34,16 @@ var event = flow('instance/event', {
     }
 });
 
-event.on('error', console.error.bind(console));
-event.on('data', function (chunk) {});
+event.on('error', (err) => {});
+event.on('data', (chunk) => {});
 event.write('chunk');
 event.end('chunk');
-```
-### Init handler
-If a module exports a method named `init`,
-flow will call this method once after the module is loaded
-```js
-exports.init = function (config, ready) {
-    // do init tasks, then call ready.
-    // if an error is passed the instance will not be cached and no "ready" event will be emmitted.
-    ready(new Error('Init error'));
-};
 ```
 ### Data handler
 Data handler receive the data chunks, that are send over the stream.
 Data handlers are ment to transform the chunks and pass it down the line.
 ```js
-exports.myMethod = function (options, data, next, stream) {
+exports.myMethod = function (scope, inst, args, data, next, stream, enc) {
     
     // Push data to next handler (you have to call "next()", to signal that the handler is done).
     stream.push(data);
@@ -56,7 +51,7 @@ exports.myMethod = function (options, data, next, stream) {
     // Pass transformed data to the next data handler.
     next(null, data);
     
-    // Emit en error
+    // Emit an error, stream will end
     next(new Error('Something bad happend.'));
 };
 ```
@@ -64,7 +59,7 @@ exports.myMethod = function (options, data, next, stream) {
 Stream handler receive the previous stream in the the event chain and can also
 return a duplex/transform or readable stream, which gets piped into the chain.
 ```js
-exports.myMethod = function (options, stream) {
+exports.myMethod = function (scope, inst, args, stream) {
 
     // read from flow event
     stream.pipe(otherWritableStream);
@@ -72,6 +67,7 @@ exports.myMethod = function (options, stream) {
     
     // ..or, write to flow event (return a readable stream)
     
+    // TODO hmm.. check this, probably not true anymore 
     // Note: A readable stream overwrites the output of the flow event.
     // Which means that if you call a stream handler, that returns
     // a readable stream, more then once. Only the chunks of the last
@@ -85,58 +81,8 @@ exports.myMethod = function (options, stream) {
     return zlib.createGzip();
 };
 ```
-###Module instance config (MIC)
-Config module type and flow events for module instances.
-```js
-{
-    // define roles. "*" means public
-    "roles": {"*": true},
-    
-    // name of the instance. ex. instance/event
-    "name": "instance",
-    
-    // npm module name
-    "module": "module",
-    
-    // custom instance config -> exports.init (config, ready) {};
-    "config": {},
-    
-    // emit events onload
-    "load": ["instance/event"],
-    
-    // flow event listeners
-    "flow": {
-        "eventName": {
-            "d": [
-                // Data handler: receives data from flow or custom streams.
-                [":instance/method", {"key": "value"}],
-                
-                // "Once" data handler: Like a data handler,
-                // but will be removed after first data chunk is processed.
-                [".instance/method", {"key": "value"}],
-                
-                // Flow emit: write data to event and write event
-                // result data to next data handlers or streams.
-                [">instance/event", {"key": "value"}],
-                
-                // Custom stream: A method that returns a readable,
-                // writable or duplex stream.
-                ["*instance/method", {"key": "value"}]
-            ],
-            
-            // if the flow stream ends, this event will be emitted, no data.
-            "e": "instance/onEndEvent",
-            
-            // if an error happens somewhere in the flow stream,
-            // this event will be emitted, with the error as data.
-            "r": "instance/onErrorEvent"
-        }
-    }
-}
-```
-If there are no options for a flow handler, the handler path can be just a string.
-Also the instance name in a path is optional, if you call a method on the
-module instance, where flow is configured.
+###Flow Network (RDF)
+**TODO** Document triples! maybe use JSON-LD
 
 ### License (MIT)
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
