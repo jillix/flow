@@ -27,7 +27,8 @@
     "test": "tap test/*.js"
   },
   "dependencies": {
-    "libobject": "github:jillix/libobject"
+    "libobject": "github:jillix/libobject",
+    "setimmediate": "^1.0.5"
   },
   "devDependencies": {
     "tap": "^5.7.0"
