@@ -34,6 +34,7 @@ const flow = Flow({
     }
 });
 
+const event = flow('event_id|iri');
 event.on('error', (err) => {});
 event.on('data', (chunk) => {});
 event.write('chunk');
