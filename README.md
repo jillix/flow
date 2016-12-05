@@ -85,23 +85,19 @@ exports.myMethod = function (scope, inst, args, stream) {
 ###Flow Network (RDF)
 | Type     | Subject    | Predicate | Object          |
 | -------- | ---------- | --------- | --------------- |
-| Instance | UID/IRI    | name      | **InstName**    |
-|          | UID/IRI    | type      | **InstType**    |
+| Sequence | UID/IRI    | name      | **SeqName**     |
+|          | UID/IRI    | type      | **SeqType**     |
 |          | UID/IRI    | roles     | **RoleName**    |
-|          | UID/IRI    | module    | UID/IRI         |
-|          | UID/IRI    | event     | UID/IRI         |
-| Listener | UID/IRI    | name      | **EventName**   |
-|          | UID/IRI    | type      | **EventType**   |
 |          | UID/IRI    | onEnd     | UID/IRI         |
 |          | UID/IRI    | onError   | UID/IRI         |
-| Handler  | UID/IRI    | next      | UID/IRI         |
-|          | UID/IRI    | type      | **HandlerType** |
+|          | UID/IRI    | next      | UID/IRI         |
+| Handler  | UID/IRI    | type      | **HandlerType** |
 |          | UID/IRI    | args      | **JSON-str**    |
-|          | UID/IRI    | instance  | UID/IRI         |
-|          | UID/IRI    | once      | UID/IRI         |
-|          | UID/IRI    | data      | UID/IRI         |
-|          | UID/IRI    | stream    | UID/IRI         |
+|          | UID/IRI    | state     | **StateName**   |
+|          | UID/IRI    | data      | **Method-IRI**  |
+|          | UID/IRI    | stream    | **Method-IRI**  |
 |          | UID/IRI    | emit      | UID/IRI         |
+|          | UID/IRI    | next      | UID/IRI         |
 
 ### License (MIT)
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
