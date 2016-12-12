@@ -99,9 +99,9 @@ exports.myMethod = function (scope, inst, args, stream) {
 | Handler      | `_:UID`  | stream     | `<IRI>`    | Method      |
 | Handler      | `_:UID`  | emit       | `_:UID`    | Sequence    |
 | Handler      | `_:UID`  | next       | `_:UID`    | Handler     |
+| Handler      | `_:UID`  | sequence   | `_:UID`    | Sequence    |
 | Method       | `<IRI>`  | descriptor | `_:HASH`   | JSON String |
-| Hashed       | `_:HASH` | TEXT       | **String** | UTF-8 Enc   |
-| Hashed       | `_:HASH` | JSON       | **String** | UTF-8 Enc   |
+| Hashed       | `_:HASH` | xsd:string | `"string"` | UTF-8 Enc   |
 | Hashed       | `_:HASH` | emit       | `_:UID`    | Sequence    |
 
 ### License (MIT)
