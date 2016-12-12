@@ -102,6 +102,7 @@ exports.myMethod = function (scope, inst, args, stream) {
 | Method       | `<IRI>`  | descriptor | `_:HASH`   | JSON String |
 | Hashed       | `_:HASH` | TEXT       | **String** | UTF-8 Enc   |
 | Hashed       | `_:HASH` | JSON       | **String** | UTF-8 Enc   |
+| Hashed       | `_:HASH` | emit       | `_:UID`    | Sequence    |
 
 ### License (MIT)
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
