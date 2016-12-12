@@ -83,21 +83,25 @@ exports.myMethod = function (scope, inst, args, stream) {
 };
 ```
 ###Flow Network (RDF)
-| Type     | Subject    | Predicate | Object          |
-| -------- | ---------- | --------- | --------------- |
-| Sequence | UID/IRI    | name      | **SeqName**     |
-|          | UID/IRI    | type      | **SeqType**     |
-|          | UID/IRI    | roles     | **RoleName**    |
-|          | UID/IRI    | onEnd     | UID/IRI         |
-|          | UID/IRI    | onError   | UID/IRI         |
-|          | UID/IRI    | next      | UID/IRI         |
-| Handler  | UID/IRI    | type      | **HandlerType** |
-|          | UID/IRI    | args      | **JSON-str**    |
-|          | UID/IRI    | state     | **StateName**   |
-|          | UID/IRI    | data      | **Method-IRI**  |
-|          | UID/IRI    | stream    | **Method-IRI**  |
-|          | UID/IRI    | emit      | UID/IRI         |
-|          | UID/IRI    | next      | UID/IRI         |
+| Subject-Type | Subject  | Predicate  | Object     | Object-Type |
+| ------------ | -------- | ---------  | -----------| ----------- |
+| Sequence     | `_:UID`  | name       | `_:HASH`   | String      |
+| Sequence     | `_:UID`  | type       | `<IRI>`    | RDF Type    |
+| Sequence     | `_:UID`  | role       | `_:HASH`   | String      |
+| Sequence     | `_:UID`  | onEnd      | `_:UID`    | Sequence    |
+| Sequence     | `_:UID`  | onError    | `_:UID`    | Sequence    |
+| Sequence     | `_:UID`  | env-vars   | `_:HASH`   | JSON String |
+| Sequence     | `_:UID`  | next       | `_:UID`    | Handler     |
+| Handler      | `_:UID`  | type       | `<IRI>`    | RDF Type    |
+| Handler      | `_:UID`  | args       | `_:HASH`   | JSON String |
+| Handler      | `_:UID`  | state      | `_:HASH`   | String      |
+| Handler      | `_:UID`  | data       | `<IRI>`    | Method      |
+| Handler      | `_:UID`  | stream     | `<IRI>`    | Method      |
+| Handler      | `_:UID`  | emit       | `_:UID`    | Sequence    |
+| Handler      | `_:UID`  | next       | `_:UID`    | Handler     |
+| Method       | `<IRI>`  | descriptor | `_:HASH`   | JSON String |
+| Hashed       | `_:HASH` | TEXT       | **String** | UTF-8 Enc   |
+| Hashed       | `_:HASH` | JSON       | **String** | UTF-8 Enc   |
 
 ### License (MIT)
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
