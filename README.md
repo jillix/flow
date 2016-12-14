@@ -94,7 +94,7 @@ exports.myMethod = function (scope, inst, args, stream) {
 | Entrypoint   | `_:UID`  | sequence    | `_:UID`    | Sequence    |
 | Environment  | `_:UID`  | vars        | `_:HASH`   | JSON String |
 | Environment  | `_:UID`  | name        | `_:HASH`   | String      |
-| Environment  | `_:UID`  | type        | `_:HASH`   | RDF Type    |
+| Environment  | `_:UID`  | type        | `<IRI>`    | RDF Type    |
 | Sequence     | `_:UID`  | name        | `_:HASH`   | String      |
 | Sequence     | `_:UID`  | type        | `<IRI>`    | RDF Type    |
 | Sequence     | `_:UID`  | role        | `_:HASH`   | String      |
