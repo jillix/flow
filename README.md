@@ -90,8 +90,11 @@ exports.myMethod = function (scope, inst, args, stream) {
 | Network      | `_:UID`  | entrypoint  | `_:UID`    | Entrypoint  |
 | Entrypoint   | `_:UID`  | name        | `_:HASH`   | String      |
 | Entrypoint   | `_:UID`  | type        | `<IRI>`    | RDF Type    |
-| Entrypoint   | `_:UID`  | environment | `_:HASH`   | JSON String |
+| Entrypoint   | `_:UID`  | environment | `_:UID `   | Environment |
 | Entrypoint   | `_:UID`  | sequence    | `_:UID`    | Sequence    |
+| Environment  | `_:UID`  | vars        | `_:HASH`   | JSON String |
+| Environment  | `_:UID`  | name        | `_:HASH`   | String      |
+| Environment  | `_:UID`  | type        | `_:HASH`   | RDF Type    |
 | Sequence     | `_:UID`  | name        | `_:HASH`   | String      |
 | Sequence     | `_:UID`  | type        | `<IRI>`    | RDF Type    |
 | Sequence     | `_:UID`  | role        | `_:HASH`   | String      |
