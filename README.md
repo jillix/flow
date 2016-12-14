@@ -95,11 +95,8 @@ exports.myMethod = function (scope, inst, args, stream) {
 | Network       | `_:UID`  | entrypoint     | `_:UID`    | Entrypoint      |
 | *Entrypoint*  | `_:UID`  | *name*         | `_:HASH`   | *String*        |
 | *Entrypoint*  | `_:UID`  | *type*         | `<IRI>`    | *RDF Type*      |
-| *Entrypoint*  | `_:UID`  |*environment*   | `_:UID `  | *Environment*    |
+| *Entrypoint*  | `_:UID`  |*environment*   | `_:UID `   | *Object*        |
 | *Entrypoint*  | `_:UID`  | *sequence*     | `_:UID`    | *Sequence*      |
-| *Environment* | `_:UID`  | *vars*         | `_:HASH`   | *JSON String*   |
-| Environment   | `_:UID`  | name           | `_:HASH`   | String          |
-| Environment   | `_:UID`  | type           | `<IRI>`    | RDF Type        |
 | Sequence      | `_:UID`  | name           | `_:HASH`   | String          |
 | Sequence      | `_:UID`  | type           | `<IRI>`    | RDF Type        |
 | **Sequence**  | `_:UID`  | **role**       | `_:HASH`   | **String**      |
@@ -108,15 +105,18 @@ exports.myMethod = function (scope, inst, args, stream) {
 | **Sequence**  | `_:UID`  | **next**       | `_:UID`    | **Handler**     |
 | Sequence      | `_:UID`  | handler        | `_:UID`    | Handler         |
 | Handler       | `_:UID`  | type           | `<IRI>`    | RDF Type        |
-| **Handler**   | `_:UID`  | **args**       | `_:HASH`   | **JSON String** |
+| **Handler**   | `_:UID`  | **args**       | `_:UID`    | **Object**      |
 | **Handler**   | `_:UID`  | **state**      | `_:HASH`   | **String**      |
 | **Handler**   | `_:UID`  | **data**       | `<IRI>`    | **Method**      |
 | **Handler**   | `_:UID`  | **stream**     | `<IRI>`    | **Method**      |
 | **Handler**   | `_:UID`  | **emit**       | `_:UID`    | **Sequence**    |
 | **Handler**   | `_:UID`  | **next**       | `_:UID`    | **Handler**     |
-| Method        | `<IRI>`  | descriptor     | `_:HASH`   | JSON String     |
-| **Hashed**    | `_:HASH` | **xsd:string** | `"string"` | **UTF-8 Enc**   |
-| Hashed        | `_:HASH` | emit           | `_:UID`    | Sequence        |
+| Method        | `<IRI>`  | descriptor     | `_:HASH`   | String          |
+| **Object**    | `_:UID`  | *json*         | `_:HASH`   | *String*        |
+| Object        | `_:UID`  | name           | `_:HASH`   | String          |
+| Object        | `_:UID`  | type           | `<IRI>`    | RDF Type        |
+| Object        | `_:UID`  | emit           | `_:UID`    | Sequence        |
+| **String**    | `_:HASH` | **xsd:string** | `"string"` | **UTF-8 Enc**   |
 
 ### License (MIT)
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
