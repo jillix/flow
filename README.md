@@ -8,43 +8,50 @@ With NPM: `npm install jillix/flow`.
 ```js
 cosnt Flow = require('flow');
 
-// Initialize flow with adapter object
-const flow = Flow({
+// Initialize flow with evn and adapter object
+const flow = Flow(
 
-    cache: {
-        get: (key) => {},
-        set: (key, value) => {},
-        del: (key) => {}
-    },
+    // An read only object, that every method has access to (scope.env).
+    {env: "vars"},
     
-    // this method must return a CommonJs exports object.
-    mod: function (name, callback) {
-        // .. get the module, ex. require(name)
-        callback(null, module);
-    },
+    // The adapter object containing mandatory methods (`fn`, `seq`, `cache.get`, `cache.set`, `cache.del`).
+    // `reset` is the only optional method.
+    {
+        cache: {
+            get: (key) => {},
+            set: (key, value) => {},
+            del: (key) => {}
+        },
 
-    // return a flow module instance composition (mic)
-    read: function (name) {
-        // .. return a triple stream of a event
+        // this method must return a reference to a function.
+        fn: function (method_iri, callback) {
+            // .. get a function, ex. require(module_name)[exported_fn]
+            callback(null, fn);
+        },
+
+        // return a readable triple stream
+        seq: function (name) {
+            // .. return triples of a sequence (see: Flow Network RDF)
+        }
+
+        // custom reset handler
+        reset: function () {
+            // .. reset stuff, ex. DOM
+        }
     }
+);
 
-    // custom reset handler
-    reset: function () {
-        // .. reset stuff, ex. DOM
-    }
-});
-
-const event = flow('event_id|iri');
-event.on('error', (err) => {});
-event.on('data', (chunk) => {});
-event.write('chunk');
-event.end('chunk');
+const duplex = flow('event_id|iri');
+duplex.on('error', (err) => {});
+duplex.on('data', (chunk) => {});
+duplex.write('chunk');
+duplex.end('chunk');
 ```
 ### Data handler
 Data handler receive the data chunks, that are send over the stream.
 Data handlers are ment to transform the chunks and pass it down the line.
 ```js
-exports.myMethod = function (scope, inst, args, data, next, stream, enc) {
+exports.myMethod = function (scope, state, args, data, next, stream, enc) {
     
     // Push data to next handler (you have to call "next()", to signal that the handler is done).
     stream.push(data);
@@ -60,7 +67,7 @@ exports.myMethod = function (scope, inst, args, data, next, stream, enc) {
 Stream handler receive the previous stream in the the event chain and can also
 return a duplex/transform or readable stream, which gets piped into the chain.
 ```js
-exports.myMethod = function (scope, inst, args, stream) {
+exports.myMethod = function (scope, state, args, stream) {
 
     // read from flow event
     stream.pipe(otherWritableStream);
@@ -84,6 +91,7 @@ exports.myMethod = function (scope, inst, args, stream) {
 ```
 ###Flow Network (RDF)
 #####Required for flow
+Note: `xds:string` triple must not be in the sequence result, but it's object -> `"string"`. 
 | Subject-Type  | Subject  | Predicate      | Object     | Object-Type     |
 | ------------- | -------- | -------------- | -----------| --------------- |
 | Sequence      | `_:UID`  | role           | `_:HASH`   | String          |
@@ -97,7 +105,7 @@ exports.myMethod = function (scope, inst, args, stream) {
 | Handler       | `_:UID`  | emit           | `_:UID`    | Sequence        |
 | Handler       | `_:UID`  | next           | `_:UID`    | Handler         |
 | Object        | `_:UID`  | json           | `_:HASH`   | String          |
-| String        | `_:HASH` | xsd:string     | `"string"` | UTF-8 Enc       |
+| *String*      | `_:HASH` | *xsd:string*   | `"string"` | *UTF-8 Enc*     |
 
 #####Required for an adapter
 | Subject-Type  | Subject  | Predicate      | Object     | Object-Type     |
