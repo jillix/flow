@@ -92,6 +92,7 @@ exports.myMethod = function (scope, state, args, stream) {
 ###Flow Network (RDF)
 #####Required for flow
 Note: `xds:string` triple must not be in the sequence result, but it's object -> `"string"`. 
+
 | Subject-Type  | Subject  | Predicate      | Object     | Object-Type     |
 | ------------- | -------- | -------------- | -----------| --------------- |
 | Sequence      | `_:UID`  | role           | `_:HASH`   | String          |
