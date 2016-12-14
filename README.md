@@ -106,7 +106,7 @@ exports.myMethod = function (scope, inst, args, stream) {
 | **Sequence**  | `_:UID`  | **onEnd**      | `_:UID`    | **Sequence**    |
 | **Sequence**  | `_:UID`  | **onError**    | `_:UID`    | **Sequence**    |
 | **Sequence**  | `_:UID`  | **next**       | `_:UID`    | **Handler**     |
-| **Sequence**  | `_:UID`  | handler        | `_:UID`    | Handler         |
+| Sequence      | `_:UID`  | handler        | `_:UID`    | Handler         |
 | Handler       | `_:UID`  | type           | `<IRI>`    | RDF Type        |
 | **Handler**   | `_:UID`  | **args**       | `_:HASH`   | **JSON String** |
 | **Handler**   | `_:UID`  | **state**      | `_:HASH`   | **String**      |
