@@ -83,35 +83,40 @@ exports.myMethod = function (scope, inst, args, stream) {
 };
 ```
 ###Flow Network (RDF)
-| Subject-Type | Subject  | Predicate   | Object     | Object-Type |
-| ------------ | -------- | ----------- | -----------| ----------- |
-| Network      | `_:UID`  | name        | `_:HASH`   | String      |
-| Network      | `_:UID`  | type        | `<IRI>`    | RDF Type    |
-| Network      | `_:UID`  | entrypoint  | `_:UID`    | Entrypoint  |
-| Entrypoint   | `_:UID`  | name        | `_:HASH`   | String      |
-| Entrypoint   | `_:UID`  | type        | `<IRI>`    | RDF Type    |
-| Entrypoint   | `_:UID`  | environment | `_:UID `   | Environment |
-| Entrypoint   | `_:UID`  | sequence    | `_:UID`    | Sequence    |
-| Environment  | `_:UID`  | vars        | `_:HASH`   | JSON String |
-| Environment  | `_:UID`  | name        | `_:HASH`   | String      |
-| Environment  | `_:UID`  | type        | `<IRI>`    | RDF Type    |
-| Sequence     | `_:UID`  | name        | `_:HASH`   | String      |
-| Sequence     | `_:UID`  | type        | `<IRI>`    | RDF Type    |
-| Sequence     | `_:UID`  | role        | `_:HASH`   | String      |
-| Sequence     | `_:UID`  | onEnd       | `_:UID`    | Sequence    |
-| Sequence     | `_:UID`  | onError     | `_:UID`    | Sequence    |
-| Sequence     | `_:UID`  | next        | `_:UID`    | Handler     |
-| Handler      | `_:UID`  | type        | `<IRI>`    | RDF Type    |
-| Handler      | `_:UID`  | args        | `_:HASH`   | JSON String |
-| Handler      | `_:UID`  | state       | `_:HASH`   | String      |
-| Handler      | `_:UID`  | data        | `<IRI>`    | Method      |
-| Handler      | `_:UID`  | stream      | `<IRI>`    | Method      |
-| Handler      | `_:UID`  | emit        | `_:UID`    | Sequence    |
-| Handler      | `_:UID`  | next        | `_:UID`    | Handler     |
-| Handler      | `_:UID`  | sequence    | `_:UID`    | Sequence    |
-| Method       | `<IRI>`  | descriptor  | `_:HASH`   | JSON String |
-| Hashed       | `_:HASH` | xsd:string  | `"string"` | UTF-8 Enc   |
-| Hashed       | `_:HASH` | emit        | `_:UID`    | Sequence    |
+
+- **Bold triples are required**
+- *Italic triples are required for an adapter*
+- Others are used for visualization
+
+| Subject-Type  | Subject  | Predicate      | Object     | Object-Type     |
+| ------------- | -------- | -------------- | -----------| --------------- |
+| Network       | `_:UID`  | name           | `_:HASH`   | String          |
+| Network       | `_:UID`  | type           | `<IRI>`    | RDF Type        |
+| Network       | `_:UID`  | entrypoint     | `_:UID`    | Entrypoint      |
+| *Entrypoint*  | `_:UID`  | *name*         | `_:HASH`   | *String*        |
+| *Entrypoint*  | `_:UID`  | *type*         | `<IRI>`    | *RDF Type*      |
+| *Entrypoint*  | `_:UID`  |*environment*   | `_:UID `  | *Environment*    |
+| *Entrypoint*  | `_:UID`  | *sequence*     | `_:UID`    | *Sequence*      |
+| *Environment* | `_:UID`  | *vars*         | `_:HASH`   | *JSON String*   |
+| Environment   | `_:UID`  | name           | `_:HASH`   | String          |
+| Environment   | `_:UID`  | type           | `<IRI>`    | RDF Type        |
+| Sequence      | `_:UID`  | name           | `_:HASH`   | String          |
+| Sequence      | `_:UID`  | type           | `<IRI>`    | RDF Type        |
+| **Sequence**  | `_:UID`  | **role**       | `_:HASH`   | **String**      |
+| **Sequence**  | `_:UID`  | **onEnd**      | `_:UID`    | **Sequence**    |
+| **Sequence**  | `_:UID`  | **onError**    | `_:UID`    | **Sequence**    |
+| **Sequence**  | `_:UID`  | **next**       | `_:UID`    | **Handler**     |
+| Handler       | `_:UID`  | type           | `<IRI>`    | RDF Type        |
+| **Handler**   | `_:UID`  | **args**       | `_:HASH`   | **JSON String** |
+| **Handler**   | `_:UID`  | **state**      | `_:HASH`   | **String**      |
+| **Handler**   | `_:UID`  | **data**       | `<IRI>`    | **Method**      |
+| **Handler**   | `_:UID`  | **stream**     | `<IRI>`    | **Method**      |
+| **Handler**   | `_:UID`  | **emit**       | `_:UID`    | **Sequence**    |
+| **Handler**   | `_:UID`  | **next**       | `_:UID`    | **Handler**     |
+| Handler       | `_:UID`  | sequence       | `_:UID`    | Sequence        |
+| Method        | `<IRI>`  | descriptor     | `_:HASH`   | JSON String     |
+| **Hashed**    | `_:HASH` | **xsd:string** | `"string"` | **UTF-8 Enc**   |
+| Hashed        | `_:HASH` | emit           | `_:UID`    | Sequence        |
 
 ### License (MIT)
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
