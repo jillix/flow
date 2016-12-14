@@ -106,6 +106,7 @@ exports.myMethod = function (scope, inst, args, stream) {
 | **Sequence**  | `_:UID`  | **onEnd**      | `_:UID`    | **Sequence**    |
 | **Sequence**  | `_:UID`  | **onError**    | `_:UID`    | **Sequence**    |
 | **Sequence**  | `_:UID`  | **next**       | `_:UID`    | **Handler**     |
+| **Sequence**  | `_:UID`  | handler        | `_:UID`    | Handler         |
 | Handler       | `_:UID`  | type           | `<IRI>`    | RDF Type        |
 | **Handler**   | `_:UID`  | **args**       | `_:HASH`   | **JSON String** |
 | **Handler**   | `_:UID`  | **state**      | `_:HASH`   | **String**      |
@@ -113,7 +114,6 @@ exports.myMethod = function (scope, inst, args, stream) {
 | **Handler**   | `_:UID`  | **stream**     | `<IRI>`    | **Method**      |
 | **Handler**   | `_:UID`  | **emit**       | `_:UID`    | **Sequence**    |
 | **Handler**   | `_:UID`  | **next**       | `_:UID`    | **Handler**     |
-| Handler       | `_:UID`  | sequence       | `_:UID`    | Sequence        |
 | Method        | `<IRI>`  | descriptor     | `_:HASH`   | JSON String     |
 | **Hashed**    | `_:HASH` | **xsd:string** | `"string"` | **UTF-8 Enc**   |
 | Hashed        | `_:HASH` | emit           | `_:UID`    | Sequence        |
