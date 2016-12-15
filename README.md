@@ -90,23 +90,29 @@ exports.myMethod = function (scope, state, args, stream) {
 };
 ```
 ###Flow Network (RDF)
-#####Required for flow
 Note: `xds:string` triple must not be in the sequence result, but it's object -> `"string"`. 
-
-| Subject-Type  | Subject  | Predicate      | Object     | Object-Type     |
-| ------------- | -------- | -------------- | -----------| --------------- |
-| Sequence      | `_:UID`  | role           | `_:HASH`   | String          |
-| Sequence      | `_:UID`  | onEnd          | `_:UID`    | Sequence        |
-| Sequence      | `_:UID`  | onError        | `_:UID`    | Sequence        |
-| Sequence      | `_:UID`  | next           | `_:UID`    | Handler         |
-| Handler       | `_:UID`  | state          | `_:HASH`   | String          |
-| Handler       | `_:UID`  | data           | `<IRI>`    | Method          |
-| Handler       | `_:UID`  | stream         | `<IRI>`    | Method          |
-| Handler       | `_:UID`  | emit           | `_:UID`    | Sequence        |
-| Handler       | `_:UID`  | next           | `_:UID`    | Handler         |
-| Handler       | `_:UID`  | args           | `_:UID`    | Arguments       |
-| Arguments     | `_:UID`  | json           | `_:HASH`   | String          |
-| *String*      | `_:HASH` | *xsd:string*   | `"string"` | *UTF-8 Enc*     |
+#####Required for flow
+| Subject-Type  | Subject  | Predicate      | Object     | Object-Type      |
+| ------------- | -------- | -------------- | -----------| ---------------- |
+| Sequence      | `_:UID`  | role           | `_:HASH`   | String           |
+| Sequence      | `_:UID`  | onEnd          | `_:UID`    | Sequence         |
+| Sequence      | `_:UID`  | onError        | `_:UID`    | Sequence         |
+| Sequence      | `_:UID`  | next           | `_:UID`    | Data/Stream/Emit |
+| Data          | `_:UID`  | type           | `<IRI>`    | RDF Type         |
+| Data          | `_:UID`  | fn             | `<IRI>`    | Function         |
+| Data          | `_:UID`  | state          | `_:HASH`   | String           |
+| Data          | `_:UID`  | args           | `_:UID`    | Arguments        |
+| Data          | `_:UID`  | next           | `_:UID`    | Data/Stream/Emit |
+| Stream        | `_:UID`  | type           | `<IRI>`    | RDF Type         |
+| Stream        | `_:UID`  | fn             | `<IRI>`    | Function         |
+| Stream        | `_:UID`  | state          | `_:HASH`   | String           |
+| Stream        | `_:UID`  | args           | `_:UID`    | Arguments        |
+| Stream        | `_:UID`  | next           | `_:UID`    | Data/Stream/Emit |
+| Emit          | `_:UID`  | type           | `<IRI>`    | RDF Type         |
+| Emit          | `_:UID`  | sequence       | `_:UID`    | Sequence         |
+| Emit          | `_:UID`  | next           | `_:UID`    | Data/Stream/Emit |
+| Arguments     | `_:UID`  | json           | `_:HASH`   | String           |
+| *String*      | `_:HASH` | *xsd:string*   | `"string"` | *UTF-8 Enc*      |
 
 #####Required for an adapter
 | Subject-Type  | Subject  | Predicate      | Object     | Object-Type     |
@@ -128,11 +134,13 @@ Note: `xds:string` triple must not be in the sequence result, but it's object ->
 | Sequence      | `_:UID`  | name           | `_:HASH`   | String          |
 | Sequence      | `_:UID`  | type           | `<IRI>`    | RDF Type        |
 | Sequence      | `_:UID`  | handler        | `_:UID`    | Handler         |
-| Handler       | `_:UID`  | type           | `<IRI>`    | RDF Type        |
+| Data          | `_:UID`  | name           | `_:HASH`   | String          |
+| Stream        | `_:UID`  | name           | `_:HASH`   | String          |
+| Emit          | `_:UID`  | name           | `_:HASH`   | String          |
 | Arguments     | `_:UID`  | type           | `<IRI>`    | RDF Type        |
 | Arguments     | `_:UID`  | name           | `_:HASH`   | String          |
 | Arguments     | `_:UID`  | emit           | `_:UID`    | Sequence        |
-| Method        | `<IRI>`  | descriptor     | `_:HASH`   | String          |
+| Function      | `<IRI>`  | descriptor     | `_:HASH`   | String          |
 
 ### License (MIT)
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
