@@ -8,43 +8,50 @@ With NPM: `npm install jillix/flow`.
 ```js
 cosnt Flow = require('flow');
 
-// Initialize flow with adapter object
-const flow = Flow({
+// Initialize flow with evn and adapter object
+const flow = Flow(
 
-    cache: {
-        get: (key) => {},
-        set: (key, value) => {},
-        del: (key) => {}
-    },
+    // An read only object, that every method has access to (scope.env).
+    {env: "vars"},
     
-    // this method must return a CommonJs exports object.
-    mod: function (name, callback) {
-        // .. get the module, ex. require(name)
-        callback(null, module);
-    },
+    // The adapter object containing mandatory methods (`fn`, `seq`, `cache.get`, `cache.set`, `cache.del`).
+    // `reset` is the only optional method.
+    {
+        cache: {
+            get: (key) => {},
+            set: (key, value) => {},
+            del: (key) => {}
+        },
 
-    // return a flow module instance composition (mic)
-    read: function (name) {
-        // .. return a triple stream of a event
+        // this method must return a reference to a function.
+        fn: function (method_iri, callback) {
+            // .. get a function, ex. require(module_name)[exported_fn]
+            callback(null, fn);
+        },
+
+        // return a readable triple stream
+        seq: function (name) {
+            // .. return triples of a sequence (see: Flow Network RDF)
+        }
+
+        // custom reset handler
+        reset: function () {
+            // .. reset stuff, ex. DOM
+        }
     }
+);
 
-    // custom reset handler
-    reset: function () {
-        // .. reset stuff, ex. DOM
-    }
-});
-
-const event = flow('event_id|iri');
-event.on('error', (err) => {});
-event.on('data', (chunk) => {});
-event.write('chunk');
-event.end('chunk');
+const duplex = flow('event_id|iri');
+duplex.on('error', (err) => {});
+duplex.on('data', (chunk) => {});
+duplex.write('chunk');
+duplex.end('chunk');
 ```
 ### Data handler
 Data handler receive the data chunks, that are send over the stream.
 Data handlers are ment to transform the chunks and pass it down the line.
 ```js
-exports.myMethod = function (scope, inst, args, data, next, stream, enc) {
+exports.myMethod = function (scope, state, args, data, next, stream, enc) {
     
     // Push data to next handler (you have to call "next()", to signal that the handler is done).
     stream.push(data);
@@ -60,7 +67,7 @@ exports.myMethod = function (scope, inst, args, data, next, stream, enc) {
 Stream handler receive the previous stream in the the event chain and can also
 return a duplex/transform or readable stream, which gets piped into the chain.
 ```js
-exports.myMethod = function (scope, inst, args, stream) {
+exports.myMethod = function (scope, state, args, stream) {
 
     // read from flow event
     stream.pipe(otherWritableStream);
@@ -83,7 +90,57 @@ exports.myMethod = function (scope, inst, args, stream) {
 };
 ```
 ###Flow Network (RDF)
-**TODO** Document triples! maybe use JSON-LD
+Note: `xds:string` triple must not be in the sequence result, but it's object -> `"string"`. 
+#####Required for flow
+| Subject-Type  | Subject  | Predicate      | Object     | Object-Type      |
+| ------------- | -------- | -------------- | -----------| ---------------- |
+| Sequence      | `_:UID`  | role           | `_:HASH`   | String           |
+| Sequence      | `_:UID`  | onEnd          | `_:UID`    | Sequence         |
+| Sequence      | `_:UID`  | onError        | `_:UID`    | Sequence         |
+| Sequence      | `_:UID`  | next           | `_:UID`    | Data/Stream/Emit |
+| Data          | `_:UID`  | type           | `<IRI>`    | RDF Type         |
+| Data          | `_:UID`  | fn             | `<IRI>`    | Function         |
+| Data          | `_:UID`  | state          | `_:HASH`   | String           |
+| Data          | `_:UID`  | args           | `_:UID`    | Arguments        |
+| Data          | `_:UID`  | next           | `_:UID`    | Data/Stream/Emit |
+| Stream        | `_:UID`  | type           | `<IRI>`    | RDF Type         |
+| Stream        | `_:UID`  | fn             | `<IRI>`    | Function         |
+| Stream        | `_:UID`  | state          | `_:HASH`   | String           |
+| Stream        | `_:UID`  | args           | `_:UID`    | Arguments        |
+| Stream        | `_:UID`  | next           | `_:UID`    | Data/Stream/Emit |
+| Emit          | `_:UID`  | type           | `<IRI>`    | RDF Type         |
+| Emit          | `_:UID`  | sequence       | `_:UID`    | Sequence         |
+| Emit          | `_:UID`  | next           | `_:UID`    | Data/Stream/Emit |
+| Arguments     | `_:UID`  | json           | `_:HASH`   | String           |
+| *String*      | `_:HASH` | *xsd:string*   | `"string"` | *UTF-8 Enc*      |
+
+#####Required for an adapter
+| Subject-Type  | Subject  | Predicate      | Object     | Object-Type     |
+| ------------- | -------- | -------------- | -----------| --------------- |
+| Entrypoint    | `_:UID`  | name           | `_:HASH`   | String          |
+| Entrypoint    | `_:UID`  | type           | `<IRI>`    | RDF Type        |
+| Entrypoint    | `_:UID`  | sequence       | `_:UID`    | Sequence        |
+| Entrypoint    | `_:UID`  | environment    | `_:UID`    | Environment     |
+| Environment   | `_:UID`  | json           | `_:HASH`   | String          |
+
+#####Used for visualization
+| Subject-Type  | Subject  | Predicate      | Object     | Object-Type     |
+| ------------- | -------- | -------------- | -----------| --------------- |
+| Network       | `_:UID`  | name           | `_:HASH`   | String          |
+| Network       | `_:UID`  | type           | `<IRI>`    | RDF Type        |
+| Network       | `_:UID`  | entrypoint     | `_:UID`    | Entrypoint      |
+| Environment   | `_:UID`  | type           | `<IRI>`    | RDF Type        |
+| Environment   | `_:UID`  | name           | `_:HASH`   | String          |
+| Sequence      | `_:UID`  | name           | `_:HASH`   | String          |
+| Sequence      | `_:UID`  | type           | `<IRI>`    | RDF Type        |
+| Sequence      | `_:UID`  | handler        | `_:UID`    | Handler         |
+| Data          | `_:UID`  | name           | `_:HASH`   | String          |
+| Stream        | `_:UID`  | name           | `_:HASH`   | String          |
+| Emit          | `_:UID`  | name           | `_:HASH`   | String          |
+| Arguments     | `_:UID`  | type           | `<IRI>`    | RDF Type        |
+| Arguments     | `_:UID`  | name           | `_:HASH`   | String          |
+| Arguments     | `_:UID`  | emit           | `_:UID`    | Sequence        |
+| Function      | `<IRI>`  | descriptor     | `_:HASH`   | String          |
 
 ### License (MIT)
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.

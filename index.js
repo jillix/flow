@@ -7,14 +7,14 @@ const Stream = require("./lib/Stream");
 
 module.exports = (env, adapter) => {
 
-    if (!adapter.cache || !adapter.read || !adapter.mod) {
+    if (!adapter.cache || !adapter.seq || !adapter.fn) {
         throw new Error("Flow: Invalid adapter.");
     }
 
     const scope = {
         env: env || {},
-        mod: adapter.mod,
-        read: adapter.read,
+        fn: adapter.fn,
+        seq: adapter.seq,
         cache: adapter.cache,
         reset: () => {
 
