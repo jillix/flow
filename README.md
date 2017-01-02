@@ -94,24 +94,23 @@ Note: `xds:string` triple must not be in the sequence result, but it's object ->
 #####Required for flow
 | Subject-Type  | Subject  | Predicate      | Object     | Object-Type      |
 | ------------- | -------- | -------------- | -----------| ---------------- |
-| Sequence      | `_:UID`  | role           | `_:HASH`   | String           |
+| Sequence      | `_:UID`  | role           | `_:HASH`   | *String*         |
 | Sequence      | `_:UID`  | onEnd          | `_:UID`    | Sequence         |
 | Sequence      | `_:UID`  | onError        | `_:UID`    | Sequence         |
 | Sequence      | `_:UID`  | next           | `_:UID`    | Data/Stream/Emit |
 | Data          | `_:UID`  | type           | `<IRI>`    | RDF Type         |
 | Data          | `_:UID`  | fn             | `<IRI>`    | Function         |
-| Data          | `_:UID`  | state          | `_:HASH`   | String           |
-| Data          | `_:UID`  | args           | `_:UID`    | Arguments        |
+| Data          | `_:UID`  | state          | `_:HASH`   | *String*         |
+| Data          | `_:UID`  | args           | `_:HASH`   | *String*         |
 | Data          | `_:UID`  | next           | `_:UID`    | Data/Stream/Emit |
 | Stream        | `_:UID`  | type           | `<IRI>`    | RDF Type         |
 | Stream        | `_:UID`  | fn             | `<IRI>`    | Function         |
-| Stream        | `_:UID`  | state          | `_:HASH`   | String           |
-| Stream        | `_:UID`  | args           | `_:UID`    | Arguments        |
+| Stream        | `_:UID`  | state          | `_:HASH`   | *String*         |
+| Stream        | `_:UID`  | args           | `_:HASH`   | *String*         |
 | Stream        | `_:UID`  | next           | `_:UID`    | Data/Stream/Emit |
 | Emit          | `_:UID`  | type           | `<IRI>`    | RDF Type         |
 | Emit          | `_:UID`  | sequence       | `_:UID`    | Sequence         |
 | Emit          | `_:UID`  | next           | `_:UID`    | Data/Stream/Emit |
-| Arguments     | `_:UID`  | json           | `_:HASH`   | String           |
 | *String*      | `_:HASH` | *xsd:string*   | `"string"` | *UTF-8 Enc*      |
 
 #####Required for an adapter
@@ -120,27 +119,25 @@ Note: `xds:string` triple must not be in the sequence result, but it's object ->
 | Entrypoint    | `_:UID`  | name           | `_:HASH`   | String          |
 | Entrypoint    | `_:UID`  | type           | `<IRI>`    | RDF Type        |
 | Entrypoint    | `_:UID`  | sequence       | `_:UID`    | Sequence        |
-| Entrypoint    | `_:UID`  | environment    | `_:UID`    | Environment     |
-| Environment   | `_:UID`  | json           | `_:HASH`   | String          |
+| Entrypoint    | `_:UID`  | environment    | `_:HASH`   | *String*        |
 
 #####Used for visualization
 | Subject-Type  | Subject  | Predicate      | Object     | Object-Type     |
 | ------------- | -------- | -------------- | -----------| --------------- |
-| Network       | `_:UID`  | name           | `_:HASH`   | String          |
+| Network       | `_:UID`  | name           | `_:HASH`   | *String*        |
 | Network       | `_:UID`  | type           | `<IRI>`    | RDF Type        |
 | Network       | `_:UID`  | entrypoint     | `_:UID`    | Entrypoint      |
 | Environment   | `_:UID`  | type           | `<IRI>`    | RDF Type        |
-| Environment   | `_:UID`  | name           | `_:HASH`   | String          |
-| Sequence      | `_:UID`  | name           | `_:HASH`   | String          |
+| Environment   | `_:UID`  | name           | `_:HASH`   | *String*        |
+| Sequence      | `_:UID`  | name           | `_:HASH`   | *String*        |
 | Sequence      | `_:UID`  | type           | `<IRI>`    | RDF Type        |
 | Sequence      | `_:UID`  | handler        | `_:UID`    | Handler         |
-| Data          | `_:UID`  | name           | `_:HASH`   | String          |
-| Stream        | `_:UID`  | name           | `_:HASH`   | String          |
-| Emit          | `_:UID`  | name           | `_:HASH`   | String          |
-| Arguments     | `_:UID`  | type           | `<IRI>`    | RDF Type        |
-| Arguments     | `_:UID`  | name           | `_:HASH`   | String          |
-| Arguments     | `_:UID`  | emit           | `_:UID`    | Sequence        |
-| Function      | `<IRI>`  | descriptor     | `_:HASH`   | String          |
+| Data          | `_:UID`  | name           | `_:HASH`   | *String*        |
+| Stream        | `_:UID`  | name           | `_:HASH`   | *String*        |
+| Emit          | `_:UID`  | name           | `_:HASH`   | *String*        |
+| Function      | `<IRI>`  | descriptor     | `_:HASH`   | *String*        |
+| *String*      | `_:HASH` | emit           | `_:UID`    | Sequence        |
+| *String*      | `_:HASH` | name           | `_:HASH`   | *String*        |
 
-### License (MIT)
+### MIT License
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
