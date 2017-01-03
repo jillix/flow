@@ -97,6 +97,7 @@ Note: `xds:string` triple must not be in the sequence result, but it's object ->
 | Sequence      | `_:UID`  | role           | `_:HASH`   | *String*         |
 | Sequence      | `_:UID`  | onEnd          | `_:UID`    | Sequence         |
 | Sequence      | `_:UID`  | onError        | `_:UID`    | Sequence         |
+| Sequence      | `_:UID`  | handler        | `_:UID`    | Data/Stream/Emit |
 | Sequence      | `_:UID`  | next           | `_:UID`    | Data/Stream/Emit |
 | Data          | `_:UID`  | type           | `<IRI>`    | RDF Type         |
 | Data          | `_:UID`  | fn             | `<IRI>`    | Function         |
@@ -131,7 +132,6 @@ Note: `xds:string` triple must not be in the sequence result, but it's object ->
 | Environment   | `_:UID`  | name           | `_:HASH`   | *String*        |
 | Sequence      | `_:UID`  | name           | `_:HASH`   | *String*        |
 | Sequence      | `_:UID`  | type           | `<IRI>`    | RDF Type        |
-| Sequence      | `_:UID`  | handler        | `_:UID`    | Handler         |
 | Data          | `_:UID`  | name           | `_:HASH`   | *String*        |
 | Stream        | `_:UID`  | name           | `_:HASH`   | *String*        |
 | Emit          | `_:UID`  | name           | `_:HASH`   | *String*        |
