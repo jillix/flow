@@ -136,6 +136,7 @@ Note: `xds:string` triple must not be in the sequence result, but it's object ->
 | Stream        | `_:UID`  | name           | `_:HASH`   | *String*        |
 | Emit          | `_:UID`  | name           | `_:HASH`   | *String*        |
 | Function      | `<IRI>`  | descriptor     | `_:HASH`   | *String*        |
+| *String*      | `_:HASH` | type           | `<IRI>`    | RDF Type        |
 | *String*      | `_:HASH` | emit           | `_:UID`    | Sequence        |
 | *String*      | `_:HASH` | name           | `_:HASH`   | *String*        |
 
