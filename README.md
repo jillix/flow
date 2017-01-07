@@ -94,7 +94,7 @@ Note: `xds:string` triple must not be in the sequence result, but it's object ->
 #####Required for flow
 | Subject-Type  | Subject  | Predicate      | Object     | Object-Type      |
 | ------------- | -------- | -------------- | -----------| ---------------- |
-| Sequence      | `_:UID`  | role           | `_:HASH`   | *String*         |
+| Sequence      | `_:UID`  | role           | `_:UID`    | Role             |
 | Sequence      | `_:UID`  | onEnd          | `_:UID`    | Sequence         |
 | Sequence      | `_:UID`  | onError        | `_:UID`    | Sequence         |
 | Sequence      | `_:UID`  | handler        | `_:UID`    | Data/Stream/Emit |
@@ -136,6 +136,8 @@ Note: `xds:string` triple must not be in the sequence result, but it's object ->
 | Environment   | `_:UID`  | name           | `_:HASH`   | *String*        |
 | Sequence      | `_:UID`  | name           | `_:HASH`   | *String*        |
 | Sequence      | `_:UID`  | type           | `<IRI>`    | RDF Type        |
+| Role          | `_:UID`  | name           | `_:HASH`   | *String*        |
+| Role          | `_:UID`  | type           | `<IRI>`    | RDF Type        |
 | Data          | `_:UID`  | name           | `_:HASH`   | *String*        |
 | Stream        | `_:UID`  | name           | `_:HASH`   | *String*        |
 | Emit          | `_:UID`  | name           | `_:HASH`   | *String*        |
