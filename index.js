@@ -4,15 +4,16 @@
 require("setimmediate");
 
 const Stream = require("./lib/Stream");
+const Sequence = require("./lib/Sequence");
 
-module.exports = (env, adapter) => {
+module.exports = (env = {}, adapter) => {
 
     if (!adapter.cache || !adapter.seq || !adapter.fn) {
         throw new Error("Flow: Invalid adapter.");
     }
 
     const scope = {
-        env: env || {},
+        env: env,
         fn: adapter.fn,
         seq: adapter.seq,
         cache: adapter.cache,
@@ -26,7 +27,13 @@ module.exports = (env, adapter) => {
         }
     };
 
-    return scope.flow = (event, options) => {
-        return Stream(scope, event, options);
+    return scope.flow = (sequence, data, options) => {
+        return Sequence(
+            scope,
+            sequence,
+            data,
+            Stream(options),
+            (options && options.role) || env.role
+        );
     };
 };
