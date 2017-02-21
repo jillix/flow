@@ -47,46 +47,26 @@ duplex.on('data', (chunk) => {});
 duplex.write('chunk');
 duplex.end('chunk');
 ```
-### Data handler
-Data handler receive the data chunks, that are send over the stream.
-Data handlers are ment to transform the chunks and pass it down the line.
+### Handler
+Handlers are called in order on a sequence.
 ```js
-exports.myMethod = function (scope, state, args, data, next, stream, enc) {
-    
-    // Push data to next handler (you have to call "next()", to signal that the handler is done).
-    stream.push(data);
-    
-    // Pass transformed data to the next data handler.
-    next(null, data);
-    
-    // Emit an error, stream will end
-    next(new Error('Something bad happend.'));
-};
-```
-### Stream handler
-Stream handler receive the previous stream in the the event chain and can also
-return a duplex/transform or readable stream, which gets piped into the chain.
-```js
-exports.myMethod = function (scope, state, args, stream) {
+exports.myMethod = function (scope, state, args, data, stream, next) {
 
-    // read from flow event
-    stream.pipe(otherWritableStream);
-    return;
+    // Pipe a transform stream
+    next(null, data, stream.pipe(myTransformStream);
     
-    // ..or, write to flow event (return a readable stream)
+    // ..or write to a Writable stream
+    stream.pipe(myWritableStream);
+    next(null, data, stream);
     
-    // TODO hmm.. check this, probably not true anymore 
-    // Note: A readable stream overwrites the output of the flow event.
-    // Which means that if you call a stream handler, that returns
-    // a readable stream, more then once. Only the chunks of the last
-    // readable stream will be emitted as flow data chunks.
-    return fs.createReadStream('file');
+    // ..or create a new Readable stream
+    next(null, data, myReadableStream);
+
+    // Pass transformed data to the next data handler.
+    next(null, changeDataSomeHow(data), stream);
     
-    // ..or, read from flow event (return a writable stream)
-    return fs.createWriteStream('file');
-    
-    // ..or, transform flow event data (return a duplex stream)
-    return zlib.createGzip();
+    // Emit error. This will stop the sequence
+    next(new Error('Something bad happend.'));
 };
 ```
 ###Flow Network (RDF)
