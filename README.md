@@ -41,11 +41,18 @@ const flow = Flow(
     }
 );
 
-const duplex = flow('event_id|iri');
-duplex.on('error', (err) => {});
-duplex.on('data', (chunk) => {});
-duplex.write('chunk');
-duplex.end('chunk');
+// With data stream
+const stream = flow('_:sequence_id', {event: "data"}, true);
+stream.on('error', (err) => {});
+stream.on('data', (chunk) => {});
+stream.write('chunk');
+stream.end('chunk');
+
+// Without data stream
+const event = flow('_:sequence_id', {event: "data"});
+event.done = (err, data, stream) => {
+    console.log(err, data);
+};
 ```
 ### Handler
 Handlers are called in order on a sequence.
