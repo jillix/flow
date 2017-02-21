@@ -6,7 +6,7 @@ With NPM: `npm install jillix/flow`.
 
 ### Usage
 ```js
-cosnt Flow = require('flow');
+const Flow = require('flow');
 
 // Initialize flow with evn and adapter object
 const flow = Flow(
