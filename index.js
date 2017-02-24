@@ -5,6 +5,7 @@ require("setimmediate");
 
 const Stream = require("./lib/Stream");
 const Sequence = require("./lib/Sequence");
+const Emit = require("./lib/Emit");
 
 module.exports = (env = {}, adapter) => {
 
@@ -27,13 +28,16 @@ module.exports = (env = {}, adapter) => {
         }
     };
 
-    return scope.flow = (sequence, data, options) => {
-        return Sequence(
-            scope,
-            sequence,
-            data,
-            Stream(options),
-            (options && options.role) || env.role
-        );
+    return scope.flow = (sequence_id, data, options, next) => {
+
+        const io_stream = Stream(options, sequence_id); 
+
+        Sequence(scope, sequence_id, env.role, data)
+        .then(Emit)
+        .then(io_stream.setup)
+        .then(next)
+        .catch(io_stream.error);
+
+        return io_stream; 
     };
 };
