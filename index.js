@@ -3,7 +3,7 @@
 // Polyfill for setImmediate, extends the global scope.
 require("setimmediate");
 
-const Stream = require("./lib/Stream");
+const Event = require("./lib/Stream");
 const Sequence = require("./lib/Sequence");
 const Emit = require("./lib/Emit");
 
@@ -28,16 +28,20 @@ module.exports = (env = {}, adapter) => {
         }
     };
 
-    return scope.flow = (sequence_id, data, options, next) => {
+    return scope.flow = (sequence_id, data, options, done) => {
 
-        const io_stream = Stream(options, sequence_id); 
+        if (typeof options === "function") {
+            done = options;
+            options = {};
+        }
 
-        Sequence(scope, sequence_id, env.role, data)
+        const event = Event(scope, sequence_id, data, options, done);
+
+        Sequence(scope, sequence_id, event)
         .then(Emit)
-        .then(io_stream.setup)
-        .then(next)
-        .catch(io_stream.error);
+        .then(event.open)
+        .catch(event.done);
 
-        return io_stream; 
+        return event;
     };
 };
