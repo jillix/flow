@@ -3,9 +3,9 @@
 // Polyfill for setImmediate, extends the global scope.
 require("setimmediate");
 
-const Event = require("./lib/Stream");
-const Sequence = require("./lib/Sequence");
 const Emit = require("./lib/Emit");
+const Event = require("./lib/Event");
+const Sequence = require("./lib/Sequence");
 
 module.exports = (env = {}, adapter) => {
 
