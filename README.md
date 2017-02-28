@@ -57,8 +57,11 @@ event.done = (err, data, stream) => {
 ### Handler
 Handlers are called in order on a sequence.
 ```js
-exports.myMethod = function (scope, state, args, data, stream, next) {
+exports.myMethod = function (event, state, args, next) {
 
+    const data = event.data;
+    const stream = event.output;
+    
     // Pipe a transform stream
     next(null, data, stream.pipe(myTransformStream);
     
