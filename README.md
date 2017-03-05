@@ -11,8 +11,7 @@ const Flow = require('flow');
 // Initialize flow with evn and adapter object
 const flow = Flow(
     
-    // The adapter object containing mandatory methods (`fn`, `seq`, `cache.get`, `cache.set`, `cache.del`).
-    // `reset` is the only optional method.
+    // The adapter object MUST contain the methods (`fn`, `seq`, `cache.get`, `cache.set`, `cache.del`).
     {
         cache: {
             get: (key) => {},
