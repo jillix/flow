@@ -27,7 +27,8 @@ const flow = Flow(
 
         // return a readable triple stream
         seq: function (name) {
-            // .. return triples of a sequence (see: Flow Network RDF)
+            // .. return a readable stream of triples (see: Flow Network RDF)
+            // A triple must have the format: Array["subject", "F|A|S|E|R|N", "object"]
         }
     }
 );
@@ -39,6 +40,9 @@ const eventOptions = {
 
     // The role is used just for the specified "eventOptions.sequence".
     role: "myRoleId"
+
+    // TODO force a reload of the sequence
+    reload: true
 };
 
 // Pass a options object or the sequence-id directly as a string, to emit a sequence.
