@@ -112,6 +112,5 @@ Note: `xds:string` triple must not be in the sequence result, but it's object ->
 | Arguments     | `_:UID`  | name           | `_:HASH`   | String          |
 | Arguments     | `_:UID`  | emit           | `_:UID`    | Sequence        |
 | Function      | `<IRI>`  | descriptor     | `_:HASH`   | String          |
-
-### License (MIT)
+### MIT License
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
