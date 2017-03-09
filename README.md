@@ -25,10 +25,9 @@ const flow = Flow(
             callback(null, fn);
         },
 
-        // return a readable triple stream
-        seq: function (name) {
-            // .. return a readable stream of triples (see: Flow Network RDF)
-            // A triple must have the format: Array["subject", "F|A|S|E|R|N", "object"]
+        seq: function (sequenceId, role, callback) {
+            // Return a flow sequence object or an error in the callback.
+            callback(null, {/*See #flow sequence*/});
         }
     }
 );
@@ -83,6 +82,20 @@ exports.myMethod = function (event, state, args, next) {
     // Continue with no modifications
     next();
 };
+```
+###Flow sequence (JSON)
+The adapter method `adapter.seq` must return flow sequence object.
+```json
+[
+    [
+        ["owner:module#version?fn", "state", {"some":"args"}]
+    ],
+    {
+        "A": {"sequence": "args"},
+        "R": {"RoleId": true},
+        "E": "errorSequence"
+    }
+]
 ```
 ###Flow Network (RDF)
 Note: `xds:string` triple must not be in the sequence result, but it's object -> `"string"`. 
