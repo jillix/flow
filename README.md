@@ -84,15 +84,24 @@ exports.myMethod = function (event, state, args, next) {
 };
 ```
 ###Flow sequence (JSON)
-The adapter method `adapter.seq` must return flow sequence object.
-```json
+The adapter method `adapter.seq` must return a flow sequence object.
+```js
 [
+    // sequence of handlers
     [
+        // sequence handler
         ["owner:module#version?fn", "state", {"some":"args"}]
     ],
+
+    // sequence options
     {
+        // arguements accessable in `event.args`
         "A": {"sequence": "args"},
+
+        // roles for basic access check
         "R": {"RoleId": true},
+
+        // emit error as data to another sequence
         "E": "errorSequence"
     }
 ]
