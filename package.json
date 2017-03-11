@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "author": "Adrian Ottiker <adrian.ottiker@jillix.com>",
-  "description": "Flow runtime.",
+  "description": "Network of event driven subroutines.",
   "contributors": [
     "Adrian Ottiker <adrian@ottiker.com>"
   ],
