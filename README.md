@@ -107,32 +107,25 @@ The adapter method `adapter.seq` must return a flow sequence object.
 ]
 ```
 ###Flow Network (RDF)
-Note: `xds:string` triple must not be in the sequence result, but it's object -> `"string"`. 
-#####Required for flow
-| Subject-Type  | Subject  | Predicate      | Object     | Object-Type      |
-| ------------- | -------- | -------------- | -----------| ---------------- |
-| Sequence      | `_:UID`  | role           | `_:HASH`   | String           |
-| Sequence      | `_:UID`  | error          | `_:UID`    | Sequence         |
-| Sequence      | `_:UID`  | args           | `_:UID`    | Arguments        |
-| Sequence      | `_:UID`  | next           | `_:UID`    | Handler          |
-| Handler       | `_:UID`  | type           | `<IRI>`    | RDF Type         |
-| Handler       | `_:UID`  | fn             | `<IRI>`    | Function         |
-| Handler       | `_:UID`  | state          | `_:HASH`   | String           |
-| Handler       | `_:UID`  | args           | `_:UID`    | Arguments        |
-| Handler       | `_:UID`  | next           | `_:UID`    | Handler          |
-| Arguments     | `_:UID`  | json           | `_:HASH`   | String           |
-| *String*      | `_:HASH` | *xsd:string*   | `"string"` | *UTF-8 Enc*      |
-
-#####Used for visualization
-| Subject-Type  | Subject  | Predicate      | Object     | Object-Type     |
-| ------------- | -------- | -------------- | -----------| --------------- |
-| Sequence      | `_:UID`  | name           | `_:HASH`   | String          |
-| Sequence      | `_:UID`  | type           | `<IRI>`    | RDF Type        |
-| Sequence      | `_:UID`  | handler        | `_:UID`    | Handler         |
-| Handler       | `_:UID`  | name           | `_:HASH`   | String          |
-| Arguments     | `_:UID`  | type           | `<IRI>`    | RDF Type        |
-| Arguments     | `_:UID`  | name           | `_:HASH`   | String          |
-| Arguments     | `_:UID`  | emit           | `_:UID`    | Sequence        |
-| Function      | `<IRI>`  | descriptor     | `_:HASH`   | String          |
+| Subject-Type  | Subject  | Predicate      | Object     | Object-Type |
+| ------------- | -------- | -------------- | -----------| ----------- |
+| Sequence      | `_:UID`  | role           | `_:HASH`   | String      |
+| Sequence      | `_:UID`  | error          | `_:UID`    | Sequence    |
+| Sequence      | `_:UID`  | args           | `_:UID`    | Arguments   |
+| Sequence      | `_:UID`  | next           | `_:UID`    | Handler     |
+| Sequence      | `_:UID`  | name           | `_:HASH`   | String      |
+| Sequence      | `_:UID`  | type           | `<IRI>`    | RDF Type    |
+| Handler       | `_:UID`  | type           | `<IRI>`    | RDF Type    |
+| Handler       | `_:UID`  | fn             | `<IRI>`    | Function    |
+| Handler       | `_:UID`  | state          | `_:HASH`   | String      |
+| Handler       | `_:UID`  | args           | `_:UID`    | Arguments   |
+| Handler       | `_:UID`  | next           | `_:UID`    | Handler     |
+| Handler       | `_:UID`  | name           | `_:HASH`   | String      |
+| Arguments     | `_:UID`  | json           | `_:HASH`   | String      |
+| Arguments     | `_:UID`  | type           | `<IRI>`    | RDF Type    |
+| Arguments     | `_:UID`  | name           | `_:HASH`   | String      |
+| Arguments     | `_:UID`  | emit           | `_:UID`    | Sequence    |
+| *String*      | `_:HASH` | *xsd:string*   | `"string"` | *UTF-8 Enc* |
+| Function      | `<IRI>`  | descriptor     | `_:HASH`   | String      |
 ### MIT License
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
