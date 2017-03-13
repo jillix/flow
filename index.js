@@ -3,30 +3,27 @@
 // Polyfill for setImmediate, extends the global scope.
 require("setimmediate");
 
-const Stream = require("./lib/Stream");
+const Emit = require("./lib/Emit");
+const Event = require("./lib/Event");
+const Sequence = require("./lib/Sequence");
 
-module.exports = (env, adapter) => {
+module.exports = (adapter) => {
 
     if (!adapter.cache || !adapter.seq || !adapter.fn) {
         throw new Error("Flow: Invalid adapter.");
     }
 
-    const scope = {
-        env: env || {},
-        fn: adapter.fn,
-        seq: adapter.seq,
-        cache: adapter.cache,
-        reset: () => {
+    function call (options, data, done) {
 
-            if (typeof adapter.reset === "function") {
-                adapter.reset();
-            }
+        const event = Event(options, done);
 
-            adapter.cache.reset();
-        }
+        Sequence(adapter, call, event, data)
+        .then(Emit)
+        .then(event.open)
+        .catch(event.done);
+
+        return event;
     };
 
-    return scope.flow = (event, options) => {
-        return Stream(scope, event, options);
-    };
+    return call;
 };

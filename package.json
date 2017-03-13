@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "author": "Adrian Ottiker <adrian.ottiker@jillix.com>",
-  "description": "Configurable stream networks.",
+  "description": "Network of event driven subroutines.",
   "contributors": [
     "Adrian Ottiker <adrian@ottiker.com>"
   ],
@@ -16,20 +16,16 @@
     "network"
   ],
   "engine": {
-    "node": ">=5"
+    "node": ">=7"
   },
   "bugs": {
     "url": "https://github.com/jillix/flow/issues"
   },
   "homepage": "https://github.com/jillix/flow",
-  "main": "index",
-  "scripts": {
-    "test": "tap test/*.js"
-  },
+  "main": "index.js",
+  "scripts": {},
   "dependencies": {
     "setimmediate": "^1.0.5"
   },
-  "devDependencies": {
-    "tap": "^5.7.0"
-  }
+  "devDependencies": {}
 }
