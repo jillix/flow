@@ -83,7 +83,7 @@ exports.myMethod = function (event, state, args, next) {
     next();
 };
 ```
-###Flow sequence (JSON)
+### Flow sequence (JSON)
 The adapter method `adapter.seq` must return a flow sequence object.
 ```js
 [
@@ -106,7 +106,7 @@ The adapter method `adapter.seq` must return a flow sequence object.
     }
 ]
 ```
-###Flow Network (RDF)
+### Flow Network (RDF)
 | Subject-Type  | Subject  | Predicate      | Object     | Object-Type |
 | ------------- | -------- | -------------- | -----------| ----------- |
 | Sequence      | `_:UID`  | role           | `_:HASH`   | String      |
