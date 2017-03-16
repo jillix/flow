@@ -90,7 +90,7 @@ The adapter method `adapter.seq` must return a flow sequence object.
     // sequence of handlers
     [
         // sequence handler
-        ["owner:module#version?fn", "state", {"some":"args"}]
+        ["owner/module/version/fn", "state", {"some":"args"}]
     ],
 
     // sequence options
