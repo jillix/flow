@@ -15,7 +15,7 @@ module.exports = (adapter) => {
 
     function call (options, data, done) {
 
-        const event = Event(options, done);
+        const event = Event(call, options, done);
 
         Sequence(adapter, call, event, data)
         .then(Emit)
