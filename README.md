@@ -10,7 +10,7 @@ const Flow = require('flow');
 
 // Initialize flow with evn and adapter object
 const flow = Flow(
-    
+
     // The adapter object MUST contain the methods (`fn`, `seq`, `cache.get`, `cache.set`, `cache.del`).
     {
         cache: {
@@ -112,20 +112,19 @@ The adapter method `adapter.seq` must return a flow sequence object.
 | Sequence      | `_:UID`  | role           | `_:HASH`   | String      |
 | Sequence      | `_:UID`  | error          | `_:UID`    | Sequence    |
 | Sequence      | `_:UID`  | args           | `_:UID`    | Arguments   |
-| Sequence      | `_:UID`  | next           | `_:UID`    | Handler     |
+| Sequence      | `_:UID`  | next           | `_:UID`    | Next        |
 | Sequence      | `_:UID`  | name           | `_:HASH`   | String      |
 | Sequence      | `_:UID`  | type           | `<IRI>`    | RDF Type    |
-| Handler       | `_:UID`  | type           | `<IRI>`    | RDF Type    |
-| Handler       | `_:UID`  | fn             | `<IRI>`    | Function    |
-| Handler       | `_:UID`  | state          | `_:HASH`   | String      |
-| Handler       | `_:UID`  | args           | `_:UID`    | Arguments   |
-| Handler       | `_:UID`  | next           | `_:UID`    | Handler     |
-| Handler       | `_:UID`  | name           | `_:HASH`   | String      |
+| Next          | `_:UID`  | type           | `<IRI>`    | RDF Type    |
+| Next          | `_:UID`  | handler        | `<IRI>`    | Handler     |
+| Next          | `_:UID`  | state          | `_:HASH`   | String      |
+| Next          | `_:UID`  | args           | `_:UID`    | Arguments   |
+| Next          | `_:UID`  | next           | `_:UID`    | Next        |
+| Next          | `_:UID`  | name           | `_:HASH`   | String      |
 | Arguments     | `_:UID`  | json           | `_:HASH`   | String      |
 | Arguments     | `_:UID`  | type           | `<IRI>`    | RDF Type    |
 | Arguments     | `_:UID`  | name           | `_:HASH`   | String      |
 | Arguments     | `_:UID`  | emit           | `_:UID`    | Sequence    |
 | *String*      | `_:HASH` | *xsd:string*   | `"string"` | *UTF-8 Enc* |
-| Function      | `<IRI>`  | descriptor     | `_:HASH`   | String      |
 ### MIT License
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
