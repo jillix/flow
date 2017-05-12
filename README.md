@@ -126,6 +126,5 @@ The adapter method `adapter.seq` must return a flow sequence object.
 | Arguments     | `_:UID`  | name           | `_:HASH`   | String      |
 | Arguments     | `_:UID`  | emit           | `_:UID`    | Sequence    |
 | *String*      | `_:HASH` | *xsd:string*   | `"string"` | *UTF-8 Enc* |
-| Handler       | `<IRI>`  | descriptor     | `_:HASH`   | String      |
 ### MIT License
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
