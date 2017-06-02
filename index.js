@@ -13,12 +13,11 @@ module.exports = (adapter) => {
         throw new Error("Flow: Invalid adapter.");
     }
 
-    function call (options, data, done) {
-
+    const call = (options, data, done) => {
         const event = Event(call, options, done);
 
-        Sequence(adapter, call, event, data)
-        .then(Emit)
+        Sequence(adapter, event)
+        .then(Emit(call, event, data))
         .then(event.open)
         .catch(event.done);
 
