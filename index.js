@@ -93,7 +93,7 @@ Flow = (adapter) => {
                     if (output !== undefined) {
                         input = output;
                     }
-                    callHandler(sequence[0][i][0], event, sequence[0][i][1], sequence[0][i][2], input);
+                    return callHandler(sequence[0][i][0], event, sequence[0][i][1], sequence[0][i][2], input);
                 });
             };
 
