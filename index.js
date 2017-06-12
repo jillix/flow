@@ -10,7 +10,7 @@ Flow = (adapter) => {
         }
     };
 
-    const parse = (adapter, role) => {
+    const parse = (role) => {
         return (sequence) => {
             const jobs = [];
             sequence[0].forEach((handler, index) => {
@@ -18,7 +18,7 @@ Flow = (adapter) => {
                 jobs.push(Fn(handler[0], role));
 
                 if (handler[1]) {
-                    handler[1] = getState(adapter, handler[1]);
+                    handler[1] = getState(handler[1]);
                 }
 
                 if (handler[2]) {
@@ -61,9 +61,9 @@ Flow = (adapter) => {
         return state;
     };
 
-    const callHandler = (handler, event, args, state, input) => {
+    const callHandler = (handler, event, input) => {
         return new PROMISE((resolve, reject) => {
-            handler(event, args, state, input, resolve, reject);
+            handler[0](event, handler[2], handler[1], input, resolve, reject);
         });
     };
 
@@ -87,13 +87,10 @@ Flow = (adapter) => {
 
         return parsed_sequence.then((sequence) => {
             event.args = sequence[1].A;
-            let rt_sequence = callHandler(sequence[0][0][0], event, sequence[0][0][1], sequence[0][0][2], input);
+            let rt_sequence = callHandler(sequence[0][0], event, input);
             for (let i = 1; i < sequence[0].length; ++i) {
                 rt_sequence = rt_sequence.then((output) => {
-                    if (output !== undefined) {
-                        input = output;
-                    }
-                    return callHandler(sequence[0][i][0], event, sequence[0][i][1], sequence[0][i][2], input);
+                    return callHandler(sequence[0][i], event, output);
                 });
             };
 
