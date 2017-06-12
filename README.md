@@ -1,86 +1,86 @@
 # flow
-Configurable stream networks
+Network of event driven subroutines.
 
 ### Installation
 With NPM: `npm install jillix/flow`.
 
 ### Usage
 ```js
-const Flow = require('flow');
+// Just require or load the file and it will create a Global named "Flow".
+require('flow');
 
-// Initialize flow with evn and adapter object
-const flow = Flow(
+// Initialize flow with an adapter object.
+// The adapter object MUST contain the methods (`fn`, `seq`, `cache.get`, `cache.set`, `cache.del`).
+Flow({
+    cache: {
+        get: (key) => {},
+        set: (key, value) => {},
+        del: (key) => {}
+    },
 
-    // The adapter object MUST contain the methods (`fn`, `seq`, `cache.get`, `cache.set`, `cache.del`).
-    {
-        cache: {
-            get: (key) => {},
-            set: (key, value) => {},
-            del: (key) => {}
-        },
+    // this method must resolve a reference to a function.
+    fn: function (method_iri) {
+        // ex: require(module_name)[exported_fn]
+        return Promise((resolve, reject) => {
+            resolve(fn_ref);
+        })
+    },
 
-        // this method must return a reference to a function.
-        fn: function (method_iri, callback) {
-            // .. get a function, ex. require(module_name)[exported_fn]
-            callback(null, fn);
-        },
-
-        seq: function (sequenceId, role, callback) {
-            // Return a flow sequence object or an error in the callback.
-            callback(null, {/*See #flow sequence*/});
-        }
+    // Resolve a flow sequence object or reject with an error.
+    seq: function (sequenceId, role) {
+        return Promise((resolve, reject) => {
+            resolve({/*See #flow sequence*/});
+        });
     }
-);
+});
 
 // emit a flow sequence
-const eventOptions = {
+const config = {
     sequence: "sequenceId",
-    objectMode: true,
 
-    // The role is used just for the specified "eventOptions.sequence".
-    role: "myRoleId"
+    // Call a sequence with a role
+    role: "whatEverRoleStringYouSavedTheSequence"
 
-    // TODO force a reload of the sequence
+    // TODO force a reload of the sequence (dev)
     reload: true
 };
 
 // Pass a options object or the sequence-id directly as a string, to emit a sequence.
-const event = flow("sequenceId" || eventOptions, {event: "data"}, (err, data) => {
-    // ..on sequence complete handler (optional)
-});
-
-// event is a duplex stream
-event.on('error', (err) => {
+Flow("sequenceId" || config, {event: "data"})
+.then((output) => {
+    // ..handle output
+})
+.catch((err) => {
     // ..handle an error
 });
-event.on('data', (chunk) => {
-    // ..read data
-});
-event.write('chunk');
-event.end('chunk');
 ```
 ### Handler
 Handlers are called in order on a sequence.
 ```js
-exports.myMethod = function (event, state, args, next) {
+module.exports = (event, args, state, data, resolve, reject) => {
 
-    // Read from event
-    event.pipe(myWritable);
+    // Sequence args are valid for all handlers in a sequence. ex:
+    httpServer.listen(event.args.port);
 
-    // Pass a readable stream to next handler
-    next(null, null, myReadable);
+    // Handler args are readonly static infos. ex:
+    validate(args.type, data);
 
-    // Transform example
-    next(null, null, event.pipe(myDuplex));
+    // state is shared between handlers. ex:
+    if (state.active) {
+        state.active = false;
+    }
 
-    // Pass modified data
-    next(null, changeDataSomehow(event.data));
+    // data is emited with a event. ex:
+    data.req = data.req.pipe(iamWritable);
 
-    // Pass an error and break the sequence
-    next(new Error('Oh my!'));
+    // resolve handler without overwrite
+    resolve();
 
-    // Continue with no modifications
-    next();
+    // overwrite data, will be the input of the next handler
+    resolve({other: "data"});
+
+    // hanlde an error
+    reject(new Error("Oh my!"));
 };
 ```
 ### Flow sequence (JSON)
