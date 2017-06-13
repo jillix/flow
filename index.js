@@ -1,6 +1,7 @@
 Flow = (adapter) => {
     "use strict";
     const PROMISE = Promise;
+
     const checkRoleAccess = (role) => {
         return (sequence) => {
             if (sequence[1] && sequence[1].R && !sequence[1].R[role]) {
@@ -12,6 +13,7 @@ Flow = (adapter) => {
 
     const parse = (role) => {
         return (sequence) => {
+            // TODO update to handler with deps list
             const jobs = [];
             sequence[0].forEach((handler, index) => {
 
@@ -40,24 +42,23 @@ Flow = (adapter) => {
     };
 
     const Fn = (fn_iri) => {
-        const cached = adapter.cache.get(fn_iri);
+        const cached = adapter.get(fn_iri);
         if (!cached) {
-            return adapter.fn(fn_iri).then((fn) => {
-                adapter.cache.set(fn_iri, fn);
-                return fn;
+            return adapter.fnc(fn_iri).then(() => {
+                return adapter.get(fn_iri);
             });
         }
         return PROMISE.resolve(cached);
     };
 
     const getState = (state_id) => {
-        let state = adapter.cache.get(state_id);
+        let state = adapter.get(state_id);
         if (state) {
             return state;
         }
 
         state = {};
-        adapter.cache.set(state_id, state);
+        adapter.set(state_id, state);
         return state;
     };
 
@@ -67,18 +68,17 @@ Flow = (adapter) => {
         });
     };
 
-    return Flow = (event, input) => {
-
+    Flow = (event, input) => {
         event = typeof event === "string" ? event = {sequence: event} : event;
         event.emit = Flow;
 
-        let parsed_sequence = adapter.cache.get(event.sequence);
+        let parsed_sequence = adapter.get(event.sequence);
         if (!parsed_sequence) {
             parsed_sequence = adapter.seq(event.sequence, event.role)
             .then(checkRoleAccess(event.role))
             .then(parse(event.role))
             .then((parsed) => {
-                adapter.cache.set(event.sequence, parsed);
+                adapter.set(event.sequence, parsed);
                 return parsed;
             });
         } else {
@@ -102,12 +102,9 @@ Flow = (adapter) => {
             }
 
             return rt_sequence;
-
-        }).catch((err) => {
-            if (typeof adapter.error === "function") {
-                adapter.error(event.sequence, err);
-            }
-            return PROMISE.reject(err);
-        });
+        }).catch(console.error);
     };
+
+    Flow.set = adapter.set;
+    return Flow;
 };
