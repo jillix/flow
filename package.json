@@ -12,8 +12,10 @@
     "url": "https://github.com/jillix/flow.git"
   },
   "keywords": [
-    "stream",
-    "network"
+    "flow",
+    "application",
+    "RunTime",
+    "FART"
   ],
   "engine": {
     "node": ">=7"
