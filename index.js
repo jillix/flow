@@ -2,10 +2,12 @@ Flow = (adapter) => {
     "use strict";
     const PROMISE = Promise;
 
-    const callHandler = (handler, event, input) => {
-        return new PROMISE((resolve, reject) => {
-            handler[0](event, handler[2], handler[1], input, resolve, reject);
-        });
+    const callHandler = (handler, event) => {
+        return (input) => {
+            return new PROMISE((resolve, reject) => {
+                handler[0](event, handler[2], handler[1], input, resolve, reject);
+            });
+        };
     };
 
     const getFromCache = (id, load) => {
@@ -31,29 +33,38 @@ Flow = (adapter) => {
         event.emit = Flow;
         return getFromCache(event.sequence, () => {
 
-            // Load and cache sequence
+            // Load and parse sequence
             return adapter.seq(event.sequence, event.role)
             .then((sequence) => {
 
                 const refs = [];
                 const deps = [];
 
-                // load all dependencies
-                sequence[0].forEach((dependency) => {
-                    deps.push(getFromCache(dependency, () => {
-                        return adapter.dep(dependency).then(() => {
-                            adapter.set(dependency, 1);
-                            return exported
-                        });
-                    }));
-                });
+                if (sequence[1]) {
 
-                sequence[1].forEach((handler, index) => {
+                    // load all dependencies
+                    if (sequence[1].D) {
+                        for (let name in sequence[1].D) {
+                            deps.push(getFromCache(sequence[1].D[name], (dependency) => {
+                                return adapter.dep(dependency, event.role).then(() => {
+                                    adapter.set(dependency, 1);
+                                });
+                            }));
+                        }
+                    }
 
-                    // Get function reference
-                    refs.push(getFromCache(handler[0], () => {
-                        return adapter.fnc(handler[0], event.role).then(() => {
-                            return adapter.get(handler[0]);
+                    // Freeze sequence arguments
+                    if (sequence[1].A) {
+                        sequence[1].A = Object.freeze(sequence[1].A);
+                    }
+                }
+
+                sequence[0].forEach((handler, index) => {
+
+                    // Get handler method reference
+                    refs.push(getFromCache(handler[0], (handler_id) => {
+                        return adapter.fnc(handler_id, event.role).then(() => {
+                            return adapter.get(handler_id);
                         });
                     }));
 
@@ -73,53 +84,42 @@ Flow = (adapter) => {
                     }
                 });
 
-                // Freeze sequence arguments
-                if (sequence[2] && sequence[2].A) {
-                    sequence[2].A = Object.freeze(sequence[2].A);
-                }
-
-                // Wait for depencecies and function references
+                // Wait for depencecies and handler method references
                 return PROMISE.all([
                     PROMISE.all(deps),
                     PROMISE.all(refs)
                 ]).then((values) => {
                     values[1].forEach((fn, index) => {
-                        sequence[1][index][0] = fn;
+                        sequence[0][index][0] = fn;
                     });
                     return sequence;
                 });
-            })
-            .then((parsed) => {
+            }).then((parsed) => {
                 adapter.set(event.sequence, parsed);
                 return parsed;
             });
-        })
-        .then((sequence) => {
-            if (sequence[2] && sequence[2].R && !sequence[2].R[event.role]) {
+        }).then((sequence) => {
+            if (sequence[1] && sequence[1].R && !sequence[1].R[event.role]) {
                 return PROMISE.reject(new Error("EACCES"));
             }
             return sequence;
-        })
-        .then((sequence) => {
-            event.args = sequence[2] ? sequence[2].A : undefined;
-            let rt_sequence = callHandler(sequence[1][0], event, input);
-            for (let i = 1; i < sequence[1].length; ++i) {
-                rt_sequence = rt_sequence.then((output) => {
-                    return callHandler(sequence[1][i], event, output);
-                });
+        }).then((sequence) => {
+            event.args = sequence[1] ? sequence[1].A : undefined;
+            let rt_sequence = callHandler(sequence[0][0], event)(input);
+            for (let i = 1; i < sequence[0].length; ++i) {
+                rt_sequence = rt_sequence.then(callHandler(sequence[0][i], event));
             };
 
             // Handle error sequence
-            if (sequence[2] && sequence[2].E) {
+            if (sequence[1] && sequence[1].E) {
                 rt_sequence.catch((err) => {
                     err.data = input;
-                    event.emit(sequence[2].E, err);
+                    event.emit(sequence[1].E, err);
                 });
             }
 
             return rt_sequence;
-        })
-        .catch(console.error);
+        }).catch(console.error);
     };
 
     Flow.set = adapter.set;
