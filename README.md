@@ -13,7 +13,7 @@ require('flow');
 // The adapter object MUST contain the methods:
 // (`fn`, `seq`, `cache.get`, `cache.set`, `cache.del`).
 // The first time "Flow()" gets called, the adapter gets initialized.
-// After that "Flow" will just emit sequences.
+// After that "Flow()" will just emit sequences.
 Flow({
     get: (key) => {},
     set: (key, value) => {},
