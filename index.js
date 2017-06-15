@@ -119,7 +119,7 @@ Flow = (adapter) => {
             }
 
             return rt_sequence;
-        }).catch(console.error);
+        });
     };
 
     Flow.set = adapter.set;
