@@ -10,8 +10,10 @@ With NPM: `npm install jillix/flow`.
 require('flow');
 
 // Initialize flow with an adapter object.
-// The adapter object MUST contain the methods (`fn`, `seq`, `cache.get`, `cache.set`, `cache.del`).
-// The first time "Flow()" gets called, the adapter gets initialized. After that "Flow" will just emit sequences.
+// The adapter object MUST contain the methods:
+// (`fn`, `seq`, `cache.get`, `cache.set`, `cache.del`).
+// The first time "Flow()" gets called, the adapter gets initialized.
+// After that "Flow" will just emit sequences.
 Flow({
     get: (key) => {},
     set: (key, value) => {},
