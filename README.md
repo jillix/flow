@@ -50,7 +50,8 @@ const config = {
     reload: true
 };
 
-// Pass a options object or the sequence-id directly as a string, to emit a sequence.
+// Pass a options object or the sequence-id directly as a string,
+// to emit a sequence.
 Flow("sequenceId" || config, {event: "data"})
 .then((output) => {
     // ..handle output
@@ -78,13 +79,21 @@ module.exports = (event, args, state, data, resolve, reject) => {
     // data is emited with a event. ex:
     data.req = data.req.pipe(iamWritable);
 
-    // resolve handler without overwrite
-    resolve();
+    // Emit another sequence:
+    event.emit("otherSequence", inputData)
+    .then((outputData) => {
+        resolve(outputData);
+    })
+    .catch(reject);
 
-    // overwrite data, will be the input of the next handler
+    // The resolved data will be the input of the next handler
     resolve({other: "data"});
 
-    // hanlde an error
+    // Whatever is resolved will be the input of the next handler.
+    // If no data is resolved, the next handler won't have any input data
+    resolve();
+
+    // handle an error
     reject(new Error("Oh my!"));
 };
 ```
