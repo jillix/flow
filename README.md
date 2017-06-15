@@ -11,26 +11,31 @@ require('flow');
 
 // Initialize flow with an adapter object.
 // The adapter object MUST contain the methods (`fn`, `seq`, `cache.get`, `cache.set`, `cache.del`).
+// The first time "Flow()" gets called, the adapter gets initialized. After that "Flow" will just emit sequences.
 Flow({
-    cache: {
-        get: (key) => {},
-        set: (key, value) => {},
-        del: (key) => {}
-    },
+    get: (key) => {},
+    set: (key, value) => {},
+    del: (key) => {},
 
-    // this method must resolve a reference to a function.
-    fn: function (method_iri) {
-        // ex: require(module_name)[exported_fn]
+    // load a handler method
+    fnc: (method_iri) => {
         return Promise((resolve, reject) => {
-            resolve(fn_ref);
+            resolve();
         })
     },
 
-    // Resolve a flow sequence object or reject with an error.
-    seq: function (sequenceId, role) {
+    // Resolve a flow sequence object
+    seq: (sequenceId, role) => {
         return Promise((resolve, reject) => {
             resolve({/*See #flow sequence*/});
         });
+    },
+
+    // load a dependency
+    dep: (dependency) => {
+        return Promise((resolve, reject)) => {
+            resolve();
+        }
     }
 });
 
@@ -39,7 +44,7 @@ const config = {
     sequence: "sequenceId",
 
     // Call a sequence with a role
-    role: "whatEverRoleStringYouSavedTheSequence"
+    role: "whatEverRoleStringYouSavedInTheSequence"
 
     // TODO force a reload of the sequence (dev)
     reload: true
@@ -87,10 +92,15 @@ module.exports = (event, args, state, data, resolve, reject) => {
 The adapter method `adapter.seq` must return a flow sequence object.
 ```js
 [
+    // dependency list
+    [
+        "owner/module/version"
+    ],
+
     // sequence of handlers
     [
         // sequence handler
-        ["owner/module/version/fn", "state", {"some":"args"}]
+        ["publicid/path/to/fn", "state", {"some":"args"}]
     ],
 
     // sequence options
