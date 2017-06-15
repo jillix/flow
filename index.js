@@ -41,8 +41,8 @@ Flow = (adapter) => {
                 // load all dependencies
                 sequence[0].forEach((dependency) => {
                     deps.push(getFromCache(dependency, () => {
-                        return adapter.dps(dependency).then((exported) => {
-                            adapter.set(dependency, exported);
+                        return adapter.dep(dependency).then(() => {
+                            adapter.set(dependency, 1);
                             return exported
                         });
                     }));
