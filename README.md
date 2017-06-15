@@ -103,21 +103,21 @@ module.exports = (event, args, state, data, resolve, reject) => {
 The adapter method `adapter.seq` must return a flow sequence object.
 ```js
 [
-    // dependency list
-    [
-        "owner/module/version"
-    ],
-
     // sequence of handlers
     [
         // sequence handler
         ["publicid/path/to/fn", "state", {"some":"args"}]
     ],
 
-    // sequence options
+    // options
     {
         // arguements accessable in `event.args`
         "A": {"sequence": "args"},
+
+        // dependency list (same as npm dependencies)
+        "D": {
+            "dependency-name": "version"
+        }
 
         // roles for basic access check
         "R": {"RoleId": true},
