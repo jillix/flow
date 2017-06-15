@@ -11,7 +11,7 @@ require('flow');
 
 // Initialize flow with an adapter object.
 // The adapter object MUST contain the methods:
-// (`fn`, `seq`, `cache.get`, `cache.set`, `cache.del`).
+// (`fn`, `seq`, `get`, `set`, `del`).
 // The first time "Flow()" gets called, the adapter gets initialized.
 // After that "Flow()" will just emit sequences.
 Flow({
@@ -54,7 +54,7 @@ const config = {
 
 // Pass a options object or the sequence-id directly as a string,
 // to emit a sequence.
-Flow("sequenceId" || config, {event: "data"})
+Flow("sequenceId" || config, {input: "data"})
 .then((output) => {
     // ..handle output
 })
