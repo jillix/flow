@@ -22,7 +22,9 @@ Flow({
     // load a handler method
     fnc: (method_iri) => {
         return Promise((resolve, reject) => {
-            resolve();
+            // Resolve must happen in the next event loop cycle otherwise there
+            // will be a "Chaining cycle detected for promise" error.
+            process.nextTick(resolve);
         })
     },
 
