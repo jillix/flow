@@ -10,7 +10,7 @@ Flow = (adapter) => {
         };
     };
 
-    const getFromCache = (id, load) => {
+    const getFromCache = (id, load, scoped) => {
         let item = adapter.get(id);
 
         // loading
@@ -23,9 +23,7 @@ Flow = (adapter) => {
             return PROMISE.resolve(item);
         }
 
-        item = load(id);
-        adapter.set(id, item);
-        return item;
+        return adapter.set(id, load(id, scoped));
     };
 
     Flow = (event, input) => {
@@ -33,49 +31,44 @@ Flow = (adapter) => {
         event.emit = Flow;
         return getFromCache(event.sequence, () => {
 
-            // Load and parse sequence
             return adapter.seq(event.sequence, event.role)
             .then((sequence) => {
-
-                const refs = [];
-                const deps = [];
-
                 if (sequence[1]) {
-
-                    // load all dependencies
-                    if (sequence[1].D) {
-                        for (let name in sequence[1].D) {
-                            deps.push(getFromCache(sequence[1].D[name], (dependency) => {
-                                return adapter.dep(dependency, event.role).then(() => {
-                                    adapter.set(dependency, 1);
-                                });
-                            }));
-                        }
-                    }
 
                     // Freeze sequence arguments
                     if (sequence[1].A) {
                         sequence[1].A = Object.freeze(sequence[1].A);
                     }
-                }
 
+                    // Ensure dependencies
+                    if (sequence[1].D) {
+                        const deps = [];
+                        for (let name in sequence[1].D) {
+                            deps.push(getFromCache(sequence[1].D[name], (dependency, name) => {
+                                return adapter.dep(name, dependency, event.role).then(() => {
+                                    adapter.set(dependency, name);
+                                });
+                            }, name));
+                        }
+                        return Promise.all(deps).then(()=>{
+                            return sequence;
+                        });
+                    }
+                }
+                return sequence;
+            })
+            .then((sequence) => {
+                const refs = [];
                 sequence[0].forEach((handler, index) => {
 
-                    // Get handler method reference
+                    // Get handler method references
                     refs.push(getFromCache(handler[0], (handler_id) => {
-                        return adapter.fnc(handler_id, event.role).then(() => {
-                            return adapter.get(handler_id);
-                        });
+                        return adapter.fnc(handler_id, event.role).then(adapter.get);
                     }));
 
                     // Get or create a state reference
                     if (handler[1]) {
-                        let state = adapter.get(handler[1]);
-                        if (!state) {
-                            state = {};
-                            adapter.set(handler[1], state);
-                        }
-                        handler[1] = state;
+                        handler[1] = adapter.get(handler[1]) || adapter.set(handler[1], {});
                     }
 
                     // Freeze handler arguments
@@ -84,19 +77,14 @@ Flow = (adapter) => {
                     }
                 });
 
-                // Wait for depencecies and handler method references
-                return PROMISE.all([
-                    PROMISE.all(deps),
-                    PROMISE.all(refs)
-                ]).then((values) => {
-                    values[1].forEach((fn, index) => {
+                return PROMISE.all(refs).then((values) => {
+                    values.forEach((fn, index) => {
                         sequence[0][index][0] = fn;
                     });
                     return sequence;
                 });
             }).then((parsed) => {
-                adapter.set(event.sequence, parsed);
-                return parsed;
+                return adapter.set(event.sequence, parsed);
             });
         }).then((sequence) => {
             if (sequence[1] && sequence[1].R && !sequence[1].R[event.role]) {
@@ -104,6 +92,8 @@ Flow = (adapter) => {
             }
             return sequence;
         }).then((sequence) => {
+
+            // Call handlers
             event.args = sequence[1] ? sequence[1].A : undefined;
             let rt_sequence = callHandler(sequence[0][0], event)(input);
             for (let i = 1; i < sequence[0].length; ++i) {
