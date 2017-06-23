@@ -12,17 +12,9 @@ Flow = (adapter) => {
 
     const getFromCache = (id, load, scoped) => {
         let item = adapter.get(id);
-
-        // loading
-        if (item instanceof PROMISE) {
-            return item;
-        }
-
-        // available
         if (item !== undefined) {
-            return PROMISE.resolve(item);
+            return item instanceof PROMISE ? item : PROMISE.resolve(item);
         }
-
         return adapter.set(id, load(id, scoped));
     };
 
@@ -93,7 +85,7 @@ Flow = (adapter) => {
             return sequence;
         }).then((sequence) => {
 
-            // Call handlers
+            // Call handlers in order
             event.args = sequence[1] ? sequence[1].A : undefined;
             let rt_sequence = callHandler(sequence[0][0], event)(input);
             for (let i = 1; i < sequence[0].length; ++i) {
