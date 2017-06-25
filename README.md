@@ -12,9 +12,11 @@ require('flow');
 // Initialize flow with an adapter object.
 // The adapter object MUST contain the methods:
 // (`fn`, `seq`, `get`, `set`, `del`).
+// The Application Base Path (`abp`) will be added to all events of this adapter instance.
 // The first time "Flow()" gets called, the adapter gets initialized.
 // After that "Flow()" will just emit sequences.
 Flow({
+    abp: "[application_base_path]",
     get: (key) => {},
     set: (key, value) => {},
     del: (key) => {},
