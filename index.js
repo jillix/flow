@@ -21,6 +21,7 @@ Flow = (adapter) => {
     Flow = (event, input) => {
         event = typeof event === "string" ? event = {sequence: event} : event;
         event.emit = Flow;
+        event.abp = adapter.abp;
         return getFromCache(event.sequence, () => {
 
             return adapter.seq(event.sequence, event.role)
