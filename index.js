@@ -2,10 +2,30 @@ Flow = (adapter) => {
     "use strict";
     const PROMISE = Promise;
 
+    // TODO: compile this to the handler code on export
+    const getHandlerInput = (handler, input) => {
+        if (handler[3] && handler[3].length) {
+            const handler_input = {};
+            for (let i = 0, l = handler[3].length, prop; i < l; ++i) {
+                prop = handler[3][i];
+                if (prop[1] === 0) {
+                    handler_input[prop[0]] = prop[2] ? event.args[prop[2]] : event.args;
+                } else if (prop[1] < 3) {
+                    handler_input[prop[0]] = prop[2] ? handler[prop[1]][prop[2]] : handler[prop[1]];
+                } else {
+                    handler_input[prop[0]] = prop[2] ? input[prop[2]] : input;
+                }
+            }
+            return handler_input;
+        }
+        return input;
+    };
+
     const callHandler = (handler, event) => {
         return (input) => {
+            const handler_input = getHandlerInput(handler, input);
             return new PROMISE((resolve, reject) => {
-                handler[0](event, handler[2], handler[1], input, resolve, reject);
+                handler[0](event, handler[1], handler_input, resolve, reject);
             });
         };
     };
