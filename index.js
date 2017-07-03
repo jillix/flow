@@ -3,7 +3,7 @@ Flow = (adapter) => {
     const PROMISE = Promise;
 
     // TODO: compile this to the handler code on export
-    const getHandlerInput = (handler, input) => {
+    const mergeInputData = (handler, input) => {
         if (handler[3] && handler[3].length) {
             const handler_input = {};
             for (let i = 0, l = handler[3].length, prop; i < l; ++i) {
@@ -21,11 +21,24 @@ Flow = (adapter) => {
         return input;
     };
 
+    // TODO: compile this to the handler code on export
+    const mergeOutputData = (handler, next_output, output) => {
+        if (handler[4] && handler[4].length) {
+            next_output = next_output || {};
+            for (let i = 0, l = handler[4].length, prop; i < l; ++i) {
+                next_output[handler[4][i][0]] = output[handler[4][i][1]];
+            }
+        }
+        return next_output;
+    };
+
     const callHandler = (handler, event) => {
         return (input) => {
-            const handler_input = getHandlerInput(handler, input);
+            const handler_input = mergeInputData(handler, input);
             return new PROMISE((resolve, reject) => {
-                handler[0](event, handler[1], handler_input, resolve, reject);
+                handler[0](event, handler[1], handler_input, (output) => {
+                    resolve(mergeOutputData(handler, input, output));
+                }, reject);
             });
         };
     };
