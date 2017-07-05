@@ -3,17 +3,16 @@ Flow = (adapter) => {
     const PROMISE = Promise;
 
     // TODO: compile this to the handler code on export
-    const mergeInputData = (handler, input) => {
-        if (handler[3] && handler[3].length) {
+    const getInput = (handler, eargs, input) => {
+        if (handler[3]) {
             const handler_input = {};
-            for (let i = 0, l = handler[3].length, prop; i < l; ++i) {
-                prop = handler[3][i];
-                if (prop[1] === 0) {
-                    handler_input[prop[0]] = prop[2] ? event.args[prop[2]] : event.args;
-                } else if (prop[1] < 3) {
-                    handler_input[prop[0]] = prop[2] ? handler[prop[1]][prop[2]] : handler[prop[1]];
-                } else {
-                    handler_input[prop[0]] = prop[2] ? input[prop[2]] : input;
+            const sources = [handler[1], eargs, handler[2], input];
+            // TODO: HIN to input[key]
+            // HIN to input
+            // HIN[key] to input
+            for (let key in handler[3]) {
+                for (let i = 0, l = handler[3][key].length, prop; i < l; ++i) {
+                    handler_input[key] = typeof handler[3][key][i] === "number" ? sources[handler[3][key][i]] : sources[handler[3][key][i][0]][handler[3][key][i][1]];
                 }
             }
             return handler_input;
@@ -22,22 +21,25 @@ Flow = (adapter) => {
     };
 
     // TODO: compile this to the handler code on export
-    const mergeOutputData = (handler, next_output, output) => {
+    const mergeOutput = (handler, next_input, output) => {
         if (handler[4] && handler[4].length) {
-            next_output = next_output || {};
+            next_input = next_input || {};
             for (let i = 0, l = handler[4].length, prop; i < l; ++i) {
-                next_output[handler[4][i][0]] = output[handler[4][i][1]];
+                // TODO set output object to input[key]
+                // TODO set output[key] to input
+                // set output[key] to input[key]
+                // ingore output
+                next_input[handler[4][i][0]] = output[handler[4][i][1]];
             }
         }
-        return next_output;
+        return next_input;
     };
 
     const callHandler = (handler, event) => {
         return (input) => {
-            const handler_input = mergeInputData(handler, input);
             return new PROMISE((resolve, reject) => {
-                handler[0](event, handler[1], handler_input, (output) => {
-                    resolve(mergeOutputData(handler, input, output));
+                handler[0](event, handler[1], getInput(handler, event.args, input), (output) => {
+                    resolve(mergeOutput(handler, input, output));
                 }, reject);
             });
         };
@@ -54,7 +56,6 @@ Flow = (adapter) => {
     Flow = (event, input) => {
         event = typeof event === "string" ? event = {sequence: event} : event;
         event.emit = Flow;
-        event.abp = adapter.abp;
         return getFromCache(event.sequence, () => {
 
             return adapter.seq(event.sequence, event.role)
@@ -120,7 +121,8 @@ Flow = (adapter) => {
         }).then((sequence) => {
 
             // Call handlers in order
-            event.args = sequence[1] ? sequence[1].A : undefined;
+            event.args = sequence[1] ? sequence[1].A : {};
+            event.args._apb = adapter.abp;
             let rt_sequence = callHandler(sequence[0][0], event)(input);
             for (let i = 1; i < sequence[0].length; ++i) {
                 rt_sequence = rt_sequence.then(callHandler(sequence[0][i], event));
