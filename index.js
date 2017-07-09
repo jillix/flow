@@ -84,7 +84,6 @@ Flow = (adapter) => {
         event = typeof event === "string" ? event = {sequence: event} : event;
         event.emit = Flow;
         return getFromCache(event.sequence, () => {
-
             return adapter.seq(event.sequence, event.role)
             .then((sequence) => {
                 if (sequence[1]) {
@@ -148,7 +147,7 @@ Flow = (adapter) => {
         }).then((sequence) => {
 
             // Call handlers in order
-            event.args = sequence[1] ? sequence[1].A : {};
+            event.args = sequence[1] && sequence[1].A || {};
             event.args._apb = adapter.abp;
             let rt_sequence = callHandler(sequence[0][0], event)(input);
             for (let i = 1; i < sequence[0].length; ++i) {
@@ -164,7 +163,7 @@ Flow = (adapter) => {
             }
 
             return rt_sequence;
-        });
+        }).catch((err) => {console.error(err)});
     };
 
     Flow.set = adapter.set;
