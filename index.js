@@ -2,20 +2,47 @@ Flow = (adapter) => {
     "use strict";
     const PROMISE = Promise;
 
+    const getSourceValue = (sources, config) => {
+        if (config.constructor === Number) {
+            return sources[config];
+        }
+
+        if (config[0].constructor === Number) {
+
+            if (config[1] && config[1].constructor === String) {
+                return sources[config[0]][config[1]];
+            }
+
+            return sources[config[0]];
+        }
+    };
+
+    const createInput = (sources, config) => {
+        let handler_input = getSourceValue(sources, config);
+        if (handler_input !== undefined) {
+            return handler_input;
+        }
+
+        for (let i = 0, l = config.length; i < l; ++i) {
+            handler_input = getSourceValue(sources, config[i]);
+            if (handler_input !== undefined) {
+                return handler_input;
+            }
+        }
+    };
+
     // TODO: compile this to the handler code on export
     const getInput = (handler, eargs, input) => {
         if (handler[3]) {
-            const handler_input = {};
             const sources = [handler[1], eargs, handler[2], input];
-            // TODO: HIN to input[key]
-            // HIN to input
-            // HIN[key] to input
-            for (let key in handler[3]) {
-                for (let i = 0, l = handler[3][key].length, prop; i < l; ++i) {
-                    handler_input[key] = typeof handler[3][key][i] === "number" ? sources[handler[3][key][i]] : sources[handler[3][key][i][0]][handler[3][key][i][1]];
+            if (handler[3].constructor === Object) {
+                const handler_input = {};
+                for (let key in handler[3]) {
+                    handler_input[key] = createInput(sources, handler[3][key]);
                 }
+                return handler_input;
             }
-            return handler_input;
+            return createInput(sources, handler[3]);
         }
         return input;
     };
