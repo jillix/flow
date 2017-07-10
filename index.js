@@ -8,11 +8,9 @@ Flow = (adapter) => {
         }
 
         if (config[0].constructor === Number) {
-
             if (config[1] && config[1].constructor === String) {
                 return sources[config[0]][config[1]];
             }
-
             return sources[config[0]];
         }
     };
@@ -49,14 +47,23 @@ Flow = (adapter) => {
 
     // TODO: compile this to the handler code on export
     const mergeOutput = (handler, next_input, output) => {
-        if (handler[4] && handler[4].length) {
+        if (handler[4]) {
             next_input = next_input || {};
-            for (let i = 0, l = handler[4].length, prop; i < l; ++i) {
-                // TODO set output object to input[key]
-                // TODO set output[key] to input
-                // set output[key] to input[key]
-                // ingore output
-                next_input[handler[4][i][0]] = output[handler[4][i][1]];
+            if (handler[4].constructor === Array) {
+                for (let i = 0, l = handler[4].length, prop; i < l; ++i) {
+                    switch (handler[4][i][0]) {
+                        case 1:
+                            next_input[handler[4][i][1]] = output;
+                            break;
+                        case 2:
+                            next_input = output[handler[4][i][1]];
+                            break;
+                        default:
+                            next_input[handler[4][i][0]] = output[handler[4][i][1]];
+                    }
+                }
+            } else {
+                next_input = output;
             }
         }
         return next_input;
