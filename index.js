@@ -47,6 +47,7 @@ Flow = (adapter) => {
 
     // TODO: compile this to the handler code on export
     const mergeOutput = (handler, next_input, output) => {
+        console.log(handler, output);
         if (handler[4]) {
             next_input = next_input || {};
             if (handler[4].constructor === Array) {
@@ -66,6 +67,7 @@ Flow = (adapter) => {
                 next_input = output;
             }
         }
+
         return next_input;
     };
 
@@ -73,6 +75,17 @@ Flow = (adapter) => {
         return (input) => {
             return new PROMISE((resolve, reject) => {
                 handler[0](event, handler[1], getInput(handler, event.args, input), (output) => {
+
+                    if (output === undefined) {
+                        return resolve(input);
+                    }
+
+                    if (output.constructor === PROMISE) {
+                        return output.then((output) => {
+                            return mergeOutput(handler, input, output);
+                        }).catch(reject);
+                    }
+
                     resolve(mergeOutput(handler, input, output));
                 }, reject);
             });
@@ -82,7 +95,7 @@ Flow = (adapter) => {
     const getFromCache = (id, load, scoped) => {
         let item = adapter.get(id);
         if (item !== undefined) {
-            return item instanceof PROMISE ? item : PROMISE.resolve(item);
+            return item.constructor === PROMISE ? item : PROMISE.resolve(item);
         }
         return adapter.set(id, load(id, scoped));
     };
