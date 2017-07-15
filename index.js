@@ -29,7 +29,6 @@ Flow = (adapter) => {
         }
     };
 
-    // TODO: compile this to the handler code on export
     const getInput = (handler, eargs, input) => {
         if (handler[3]) {
             const sources = [handler[1], eargs, handler[2], input];
@@ -45,29 +44,22 @@ Flow = (adapter) => {
         return input;
     };
 
-    // TODO: compile this to the handler code on export
     const mergeOutput = (handler, next_input, output) => {
-        console.log(handler, output);
         if (handler[4]) {
             next_input = next_input || {};
-            if (handler[4].constructor === Array) {
-                for (let i = 0, l = handler[4].length, prop; i < l; ++i) {
-                    switch (handler[4][i][0]) {
-                        case 1:
-                            next_input[handler[4][i][1]] = output;
-                            break;
-                        case 2:
-                            next_input = output[handler[4][i][1]];
-                            break;
-                        default:
-                            next_input[handler[4][i][0]] = output[handler[4][i][1]];
+            switch (handler[4].constructor) {
+                case String:
+                    next_input = output[handler[4]];
+                    break;
+                case Object:
+                    for (let key in handler[4]) {
+                        next_input[key] = handler[4][key] === 1 ? output : output[handler[4][key]];
                     }
-                }
-            } else {
-                next_input = output;
+                    break;
+                default:
+                    next_input = output;
             }
         }
-
         return next_input;
     };
 
@@ -82,7 +74,7 @@ Flow = (adapter) => {
 
                     if (output.constructor === PROMISE) {
                         return output.then((output) => {
-                            return mergeOutput(handler, input, output);
+                            resolve(mergeOutput(handler, input, output));
                         }).catch(reject);
                     }
 
