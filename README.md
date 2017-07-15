@@ -110,7 +110,23 @@ The adapter method `adapter.seq` must return a flow sequence object.
     // sequence of handlers
     [
         // sequence handler
-        ["publicid/path/to/fn", "state", {"some":"args"}]
+        [
+            "publicid/path/to/fn",
+            "state",
+            {"some":"args"},
+
+            // handler input
+            [0-3]|[[0-3],"srcKey"]|[[0-3],[[0-3],"srcKey"]]|{
+                "inKey": [0-3]|[[0-3],"srcKey"]|[[0-3],[[0-3],"srcKey"]]
+            },
+
+            // handler output
+            0 // ignore output
+            1 // overwrite input with output
+            "outKey"// overwrite input with output.key
+            {"inKey": 1}// set input.key with output
+            {"inKey": "outKey"}// set input.key with output.key
+        ]
     ],
 
     // options
