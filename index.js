@@ -29,9 +29,9 @@ Flow = (adapter) => {
         }
     };
 
-    const getInput = (handler, eargs, input) => {
+    const getInput = (handler, sargs, input) => {
         if (handler[3]) {
-            const sources = [eargs, handler[2], input];
+            const sources = [sargs, handler[2], input];
             if (handler[3].constructor === Object) {
                 const handler_input = {};
                 for (let key in handler[3]) {
@@ -63,10 +63,10 @@ Flow = (adapter) => {
         return next_input;
     };
 
-    const callHandler = (handler, eargs) => {
+    const callHandler = (handler, sargs) => {
         return (input) => {
             return new PROMISE((resolve, reject) => {
-                handler[0](handler[1], getInput(handler, eargs, input), (output) => {
+                handler[0](handler[1], getInput(handler, sargs, input), (output) => {
 
                     if (output === undefined) {
                         return resolve(input);
