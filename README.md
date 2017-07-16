@@ -116,8 +116,8 @@ The adapter method `adapter.seq` must return a flow sequence object.
             {"some":"args"},
 
             // handler input
-            [0-3]|[[0-3],"srcKey"]|[[0-3],[[0-3],"srcKey"]]|{
-                "inKey": [0-3]|[[0-3],"srcKey"]|[[0-3],[[0-3],"srcKey"]]
+            [0-2]|[[0-2],"srcKey"]|[[0-2],[[0-2],"srcKey"]]|{
+                "inKey": [0-2|[[0-2],"srcKey"]|[[0-2],[[0-2],"srcKey"]]
             },
 
             // handler output
