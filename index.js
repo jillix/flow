@@ -8,7 +8,7 @@ Flow = (adapter) => {
         }
 
         if (config[0].constructor === Number) {
-            if (config[1] && config[1].constructor === String) {
+            if (config[1] && config[1].constructor === String && sources[config[0]] !== undefined && sources[config[0]] !== null) {
                 return sources[config[0]][config[1]];
             }
             return sources[config[0]];
@@ -31,7 +31,7 @@ Flow = (adapter) => {
 
     const getInput = (handler, eargs, input) => {
         if (handler[3]) {
-            const sources = [handler[1], eargs, handler[2], input];
+            const sources = [eargs, handler[2], input];
             if (handler[3].constructor === Object) {
                 const handler_input = {};
                 for (let key in handler[3]) {
@@ -63,10 +63,10 @@ Flow = (adapter) => {
         return next_input;
     };
 
-    const callHandler = (handler, event) => {
+    const callHandler = (handler, eargs) => {
         return (input) => {
             return new PROMISE((resolve, reject) => {
-                handler[0](event, handler[1], getInput(handler, event.args, input), (output) => {
+                handler[0](handler[1], getInput(handler, eargs, input), (output) => {
 
                     if (output === undefined) {
                         return resolve(input);
@@ -92,11 +92,9 @@ Flow = (adapter) => {
         return adapter.set(id, load(id, scoped));
     };
 
-    Flow = (event, input) => {
-        event = typeof event === "string" ? event = {sequence: event} : event;
-        event.emit = Flow;
-        return getFromCache(event.sequence, () => {
-            return adapter.seq(event.sequence, event.role)
+    Flow = (sequenceId, input, role) => {
+        return getFromCache(sequenceId, () => {
+            return adapter.seq(sequenceId, role)
             .then((sequence) => {
                 if (sequence[1]) {
 
@@ -110,7 +108,7 @@ Flow = (adapter) => {
                         const deps = [];
                         for (let name in sequence[1].D) {
                             deps.push(getFromCache(sequence[1].D[name], (dependency, name) => {
-                                return adapter.dep(name, dependency, event.role).then(() => {
+                                return adapter.dep(name, dependency, role).then(() => {
                                     adapter.set(dependency, name);
                                 });
                             }, name));
@@ -128,7 +126,7 @@ Flow = (adapter) => {
 
                     // Get handler method references
                     refs.push(getFromCache(handler[0], (handler_id) => {
-                        return adapter.fnc(handler_id, event.role).then(adapter.get);
+                        return adapter.fnc(handler_id, role).then(adapter.get);
                     }));
 
                     // Get or create a state reference
@@ -149,28 +147,26 @@ Flow = (adapter) => {
                     return sequence;
                 });
             }).then((parsed) => {
-                return adapter.set(event.sequence, parsed);
+                return adapter.set(sequenceId, parsed);
             });
         }).then((sequence) => {
-            if (sequence[1] && sequence[1].R && !sequence[1].R[event.role]) {
+            if (sequence[1] && sequence[1].R && !sequence[1].R[role]) {
                 return PROMISE.reject(new Error("EACCES"));
             }
             return sequence;
         }).then((sequence) => {
 
             // Call handlers in order
-            event.args = sequence[1] && sequence[1].A || {};
-            event.args._apb = adapter.abp;
-            let rt_sequence = callHandler(sequence[0][0], event)(input);
+            let rt_sequence = callHandler(sequence[0][0], sequence[1] && sequence[1].A)(input);
             for (let i = 1; i < sequence[0].length; ++i) {
-                rt_sequence = rt_sequence.then(callHandler(sequence[0][i], event));
+                rt_sequence = rt_sequence.then(callHandler(sequence[0][i], sequence[1] && sequence[1].A));
             };
 
             // Handle error sequence
             if (sequence[1] && sequence[1].E) {
                 rt_sequence.catch((err) => {
                     err.data = input;
-                    event.emit(sequence[1].E, err);
+                    Flow(sequence[1].E, err);
                 });
             }
 
@@ -179,5 +175,6 @@ Flow = (adapter) => {
     };
 
     Flow.set = adapter.set;
+    Flow.abp = adapter.abp;
     return Flow;
 };
