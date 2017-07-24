@@ -148,12 +148,20 @@ The adapter method `adapter.seq` must return a flow sequence object.
 | Next          | `_:UID`  | handler        | `<IRI>`    | Handler     |
 | Next          | `_:UID`  | state          | `_:HASH`   | String      |
 | Next          | `_:UID`  | args           | `_:UID`    | Arguments   |
+| Next          | `_:UID`  | input          | `_:UID`    | Input       |
+| Next          | `_:UID`  | output         | `_:UID`    | Output      |
 | Next          | `_:UID`  | next           | `_:UID`    | Next        |
 | Next          | `_:UID`  | name           | `_:HASH`   | String      |
 | Arguments     | `_:UID`  | json           | `_:HASH`   | String      |
 | Arguments     | `_:UID`  | type           | `<IRI>`    | RDF Type    |
 | Arguments     | `_:UID`  | name           | `_:HASH`   | String      |
 | Arguments     | `_:UID`  | emit           | `_:UID`    | Sequence    |
+| Input         | `_:UID`  | json           | `_:HASH`   | String      |
+| Input         | `_:UID`  | type           | `<IRI>`    | RDF Type    |
+| Input         | `_:UID`  | name           | `_:HASH`   | String      |
+| Output        | `_:UID`  | json           | `_:HASH`   | String      |
+| Output        | `_:UID`  | type           | `<IRI>`    | RDF Type    |
+| Output        | `_:UID`  | name           | `_:HASH`   | String      |
 | *String*      | `_:HASH` | *xsd:string*   | `"string"` | *UTF-8 Enc* |
 ### MIT License
 See [LICENSE](https://github.com/jillix/flow/blob/master/LICENSE) file.
