@@ -57,7 +57,7 @@ Flow("sequenceId", {input: "data"})
 ### Handler
 Handlers are called in order on a sequence.
 ```js
-Flow.set("owner.handlerName.major.minor.path-feature",(()=>{
+Flow.set("owner.handlerName.major.minor.patch-feature",(()=>{
     "use strict"
 
     return (state, input, resolve, reject) => {
