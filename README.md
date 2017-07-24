@@ -45,20 +45,8 @@ Flow({
     }
 });
 
-// emit a flow sequence
-const config = {
-    sequence: "sequenceId",
-
-    // Call a sequence with a role
-    role: "whatEverRoleStringYouSavedInTheSequence"
-
-    // TODO force a reload of the sequence (dev)
-    reload: true
-};
-
-// Pass a options object or the sequence-id directly as a string,
-// to emit a sequence.
-Flow("sequenceId" || config, {input: "data"})
+// Emit a flow sequence
+Flow("sequenceId", {input: "data"})
 .then((output) => {
     // ..handle output
 })
@@ -69,34 +57,18 @@ Flow("sequenceId" || config, {input: "data"})
 ### Handler
 Handlers are called in order on a sequence.
 ```js
-module.exports = (event, args, state, data, resolve, reject) => {
+module.exports = (state, input, resolve, reject) => {
 
-    // Sequence args are valid for all handlers in a sequence. ex:
-    httpServer.listen(event.args.port);
+    // Emit another sequence
+    const sequencePromise = Flow("otherSequence", inputData);
 
-    // Handler args are readonly static infos. ex:
-    validate(args.type, data);
+    // Resolve with a Promise
+    resolve(sequencePromise);
 
-    // state is shared between handlers. ex:
-    if (state.active) {
-        state.active = false;
-    }
-
-    // data is emited with a event. ex:
-    data.req = data.req.pipe(iamWritable);
-
-    // Emit another sequence:
-    event.emit("otherSequence", inputData)
-    .then((outputData) => {
-        resolve(outputData);
-    })
-    .catch(reject);
-
-    // The resolved data will be the input of the next handler
+    // Resolve with data
     resolve({other: "data"});
 
-    // Whatever is resolved will be the input of the next handler.
-    // If no data is resolved, the next handler won't have any input data
+    // Resolve without data
     resolve();
 
     // handle an error
@@ -115,17 +87,28 @@ The adapter method `adapter.seq` must return a flow sequence object.
             "state",
             {"some":"args"},
 
-            // handler input
-            [0-2]|[[0-2],"srcKey"]|[[0-2],[[0-2],"srcKey"]]|{
-                "inKey": [0-2|[[0-2],"srcKey"]|[[0-2],[[0-2],"srcKey"]]
-            },
+            // handler input config
+            0-2                     // set handler input to source
+            [0-2, "out.Key"]        // set handler input to source[out.key]
+            [                       // set handler input from list of sources
+                0-2                 // set handler input to source
+                [0-2, "out.Key"]    // set handler input to source[out.key]
+            ]
+            [                       // set handler input[in.key] in order
+                [
+                    "in.Key",
+                    0-2 | [0-2, "out.Key"] | [0-2 | [0-2, "out.Key"]]   //(same as handler input config)
+                ]
+            ]
 
-            // handler output
-            0 // ignore output
-            1 // overwrite input with output
-            "outKey"// overwrite input with output.key
-            {"inKey": 1}// set input.key with output
-            {"inKey": "outKey"}// set input.key with output.key
+            // handler output config
+            0                           // ignore output
+            1                           // overwrite input with output
+            "out.Key"                   // overwrite input with output[out.key]
+            [
+                ["in.Key", 1]           // set input.key with output
+                ["in.Key", "out.Key"]   // set input.key with output[out.key]
+            ]
         ]
     ],
 
