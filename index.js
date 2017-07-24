@@ -2,44 +2,62 @@ Flow = (adapter) => {
     "use strict";
     const PROMISE = Promise;
 
-    const getSourceValue = (sources, config) => {
-        if (config.constructor === Number) {
-            return sources[config];
+    const getObjVal = (path, object) => {
+        if (path === "." || path === 1) {
+            return object;
         }
-
-        if (config[0].constructor === Number) {
-            if (config[1] && config[1].constructor === String && sources[config[0]] !== undefined && sources[config[0]] !== null) {
-                return sources[config[0]][config[1]];
+        path = path.split(".");
+        for (let i = 0, l = path.length; i < l; ++i) {
+            if ((object = object[path[i]]) === undefined) {
+                return;
             }
-            return sources[config[0]];
+        }
+        return object;
+    };
+
+    const setObjVal = (path, object, value) => {
+        if (path === "." || path === 1) {
+            object = value;
+        } else {
+            path = path.split(".");
+            for (let i = 0, l = path.length - 1; i <= l; ++i) {
+                object = (
+                    object[path[i]] = l === i ? value :
+                        (object[path[i]] !== undefined ? object[path[i]] :
+                            (object.constructor === Array ? [] : {}))
+                );
+            }
         }
     };
 
-    const createInput = (sources, config) => {
-        let handler_input = getSourceValue(sources, config);
-        if (handler_input !== undefined) {
-            return handler_input;
+    const getSrcVal = (sources, config) => {
+        if (config.constructor === Number) {
+            return sources[config];
         }
-
-        for (let i = 0, l = config.length; i < l; ++i) {
-            handler_input = getSourceValue(sources, config[i]);
-            if (handler_input !== undefined) {
-                return handler_input;
+        if (sources[config[0]] !== undefined) {
+            if (config[1].constructor === String) {
+                return getObjVal(config[1], sources[config[0]]);
             }
+            return sources[config[0]];
         }
     };
 
     const getInput = (handler, sargs, input) => {
         if (handler[3]) {
             const sources = [sargs, handler[2], input];
-            if (handler[3].constructor === Object) {
+            if (
+                handler[3].constructor === Array &&
+                handler[3][0].constructor === Array &&
+                handler[3][0][0].constructor === String
+            ) {
                 const handler_input = {};
-                for (let key in handler[3]) {
-                    handler_input[key] = createInput(sources, handler[3][key]);
+                for (let i = 0, l = handler[3].length; i < l; ++i) {
+                    setObjVal(handler[3][i][0], handler_input, getSrcVal(sources, handler[3][i][1]));
                 }
                 return handler_input;
+            } else {
+                return getSrcVal(sources, handler[3]);
             }
-            return createInput(sources, handler[3]);
         }
         return input;
     };
@@ -49,11 +67,11 @@ Flow = (adapter) => {
             next_input = next_input || {};
             switch (handler[4].constructor) {
                 case String:
-                    next_input = output[handler[4]];
+                    next_input = getObjVal(handler[4], output);
                     break;
-                case Object:
-                    for (let key in handler[4]) {
-                        next_input[key] = handler[4][key] === 1 ? output : output[handler[4][key]];
+                case Array:
+                    for (let i = 0, l = handler[4].length; i < l; ++i) {
+                        setObjVal(handler[4][i][0], next_input, getObjVal(handler[4][i][1], output));
                     }
                     break;
                 default:
