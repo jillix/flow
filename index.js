@@ -183,13 +183,13 @@ Flow = (adapter) => {
             // Handle error sequence
             if (sequence[1] && sequence[1].E) {
                 rt_sequence.catch((err) => {
-                    err.data = input;
-                    Flow(sequence[1].E, err);
+                    input.err = err;
+                    return Flow(sequence[1].E, input).catch((err)=>{return err;});
                 });
             }
 
             return rt_sequence;
-        }).catch((err) => {console.error(err)});
+        });
     };
 
     Flow.set = adapter.set;
