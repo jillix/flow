@@ -24,7 +24,7 @@
     "url": "https://github.com/jillix/flow/issues"
   },
   "homepage": "https://github.com/jillix/flow",
-  "main": "index.js",
+  "main": "common.js",
   "scripts": {},
   "dependencies": {},
   "devDependencies": {}
