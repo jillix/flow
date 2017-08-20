@@ -1,5 +1,6 @@
-Flow = (adapter) => {
+export default function (adapter, DEPENDENCY_LOADER) {
     "use strict";
+
     const PROMISE = Promise;
 
     const getObjVal = (path, object) => {
@@ -110,7 +111,7 @@ Flow = (adapter) => {
         return adapter.set(id, load(id, scoped));
     };
 
-    Flow = (sequenceId, input, role) => {
+    return function flow (sequenceId, input, role) {
         return getFromCache(sequenceId, () => {
             return adapter.seq(sequenceId, role)
             .then((sequence) => {
@@ -144,7 +145,9 @@ Flow = (adapter) => {
 
                     // Get handler method references
                     refs.push(getFromCache(handler[0], (handler_id) => {
-                        return adapter.fnc(handler_id, role).then(adapter.get);
+                        return adapter.fnc(handler_id, role).then((fn) => {
+                            return fn(flow, adapter.abp || "/", adapter, DEPENDENCY_LOADER);
+                        });
                     }));
 
                     // Get or create a state reference
@@ -184,15 +187,11 @@ Flow = (adapter) => {
             if (sequence[1] && sequence[1].E) {
                 rt_sequence.catch((err) => {
                     input.err = err;
-                    return Flow(sequence[1].E, input).catch((err)=>{return err;});
+                    return flow(sequence[1].E, input).catch((err)=>{return err;});
                 });
             }
 
             return rt_sequence;
         });
-    };
-
-    Flow.set = adapter.set;
-    Flow.abp = adapter.abp;
-    return Flow;
-};
+    }
+}
