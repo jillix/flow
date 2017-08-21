@@ -62,7 +62,7 @@ Handlers are called in order on a sequence.
 return (state, input, resolve, reject) => {
 
     // Emit another sequence
-    const sequencePromise = Flow("otherSequence", inputData);
+    const sequencePromise = flow("otherSequence", inputData);
 
     // Resolve with a Promise
     resolve(sequencePromise);
