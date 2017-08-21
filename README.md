@@ -57,28 +57,25 @@ Flow("sequenceId", {input: "data"})
 ### Handler
 Handlers are called in order on a sequence.
 ```js
-Flow.set("owner.handlerName.major.minor.patch-feature",(()=>{
-    "use strict"
+// "flow" (emit sequences) and "Adapter" variables
+// are available in the function scope.
+return (state, input, resolve, reject) => {
 
-    return (state, input, resolve, reject) => {
+    // Emit another sequence
+    const sequencePromise = Flow("otherSequence", inputData);
 
-        // Emit another sequence
-        const sequencePromise = Flow("otherSequence", inputData);
+    // Resolve with a Promise
+    resolve(sequencePromise);
 
-        // Resolve with a Promise
-        resolve(sequencePromise);
+    // Resolve with data
+    resolve({other: "data"});
 
-        // Resolve with data
-        resolve({other: "data"});
+    // Resolve without data
+    resolve();
 
-        // Resolve without data
-        resolve();
-
-        // handle an error
-        reject(new Error("Oh my!"));
-    };
-
-})());
+    // handle an error
+    reject(new Error("Oh my!"));
+};
 ```
 ### Flow sequence (JSON)
 The adapter method `adapter.seq` must return a flow sequence object.
