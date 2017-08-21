@@ -101,8 +101,8 @@ export default function (adapter) {
                         resolve(mergeOutput(handler, input, output));
                     }, reject);
                 } catch(err) {
-                    //err.message = handler_id + ": " + err.message;
-                    reject(err)
+                    err.message = handler[5] + ": " + err.message;
+                    reject(err);
                 }
             });
         };
@@ -152,10 +152,10 @@ export default function (adapter) {
                     refs.push(getFromCache(handler[0], (handler_id) => {
                         return adapter.fnc(handler_id, role).then((fn) => {
                             try {
-                                return fn(flow, adapter.abp || "/", adapter);
+                                return fn(adapter, flow);
                             } catch(err) {
                                 err.message = handler_id + ": " + err.message;
-                                return Promise.reject(err)
+                                return Promise.reject(err);
                             }
                         });
                     }));
@@ -173,7 +173,7 @@ export default function (adapter) {
 
                 return PROMISE.all(refs).then((values) => {
                     values.forEach((fn, index) => {
-                        //sequence[0][index].push(sequence[0][index][0]);
+                        sequence[0][index][5] = sequence[0][index][0];
                         sequence[0][index][0] = fn;
                     });
                     return sequence;
