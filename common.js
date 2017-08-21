@@ -1,4 +1,6 @@
-export default function (adapter) {
+'use strict';
+
+var index = function (adapter) {
     "use strict";
 
     const PROMISE = Promise;
@@ -192,7 +194,7 @@ export default function (adapter) {
             let rt_sequence = callHandler(sequence[0][0], sequence[1] && sequence[1].A)(input);
             for (let i = 1; i < sequence[0].length; ++i) {
                 rt_sequence = rt_sequence.then(callHandler(sequence[0][i], sequence[1] && sequence[1].A));
-            };
+            }
 
             // Handle error sequence
             if (sequence[1] && sequence[1].E) {
@@ -205,4 +207,6 @@ export default function (adapter) {
             return rt_sequence;
         });
     }
-}
+};
+
+module.exports = index;
