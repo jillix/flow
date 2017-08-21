@@ -1,4 +1,4 @@
-export default function (adapter, DEPENDENCY_LOADER) {
+export default function (adapter) {
     "use strict";
 
     const PROMISE = Promise;
@@ -85,20 +85,25 @@ export default function (adapter, DEPENDENCY_LOADER) {
     const callHandler = (handler, sargs) => {
         return (input) => {
             return new PROMISE((resolve, reject) => {
-                handler[0](handler[1], getInput(handler, sargs, input), (output) => {
+                try {
+                    handler[0](handler[1], getInput(handler, sargs, input), (output) => {
 
-                    if (output === undefined) {
-                        return resolve(input);
-                    }
+                        if (output === undefined) {
+                            return resolve(input);
+                        }
 
-                    if (output.constructor === PROMISE) {
-                        return output.then((output) => {
-                            resolve(mergeOutput(handler, input, output));
-                        }).catch(reject);
-                    }
+                        if (output.constructor === PROMISE) {
+                            return output.then((output) => {
+                                resolve(mergeOutput(handler, input, output));
+                            }).catch(reject);
+                        }
 
-                    resolve(mergeOutput(handler, input, output));
-                }, reject);
+                        resolve(mergeOutput(handler, input, output));
+                    }, reject);
+                } catch(err) {
+                    //err.message = handler_id + ": " + err.message;
+                    reject(err)
+                }
             });
         };
     };
@@ -146,7 +151,12 @@ export default function (adapter, DEPENDENCY_LOADER) {
                     // Get handler method references
                     refs.push(getFromCache(handler[0], (handler_id) => {
                         return adapter.fnc(handler_id, role).then((fn) => {
-                            return fn(flow, adapter.abp || "/", adapter, DEPENDENCY_LOADER);
+                            try {
+                                return fn(flow, adapter.abp || "/", adapter);
+                            } catch(err) {
+                                err.message = handler_id + ": " + err.message;
+                                return Promise.reject(err)
+                            }
                         });
                     }));
 
@@ -163,6 +173,7 @@ export default function (adapter, DEPENDENCY_LOADER) {
 
                 return PROMISE.all(refs).then((values) => {
                     values.forEach((fn, index) => {
+                        //sequence[0][index].push(sequence[0][index][0]);
                         sequence[0][index][0] = fn;
                     });
                     return sequence;
