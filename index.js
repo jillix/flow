@@ -182,11 +182,11 @@ export default function (adapter) {
                 return adapter.set(sequenceId, parsed);
             });
         }).then((sequence) => {
+
+            // role check
             if (sequence[1] && sequence[1].R && !sequence[1].R[role]) {
                 return PROMISE.reject(new Error("EACCES"));
             }
-            return sequence;
-        }).then((sequence) => {
 
             // Call handlers in order
             let rt_sequence = callHandler(sequence[0][0], sequence[1] && sequence[1].A)(input);
